@@ -1,11 +1,17 @@
 package main
 
-import "fmt"
 import "log"
 import "os"
 
 func main() {
 	host := os.Args[1]
+	domain := os.Args[2]
+
+	config, err := createNginxHostConfiguration(domain)
+
+	if err != nil {
+		log.Fatal("Error generating Nginx configuration file: ", err)
+	}
 
 	client, err := createSSHClient(host)
 
@@ -15,11 +21,9 @@ func main() {
 
 	defer client.close()
 
-	result, err := client.runCommands("uname -a")
+	err = client.scp(config, domain)
 
 	if err != nil {
-		log.Fatal("Failed to run remote command: ", err)
+		log.Fatal("Failed to upload file: ", err)
 	}
-
-	fmt.Print(result)
 }

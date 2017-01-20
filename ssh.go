@@ -11,8 +11,8 @@ import "os/user"
 import "strings"
 
 type sshClient struct {
-	*ssh.Client
-	*ssh.Session
+	Client  *ssh.Client
+	Session *ssh.Session
 }
 
 func createSSHClient(host string) (*sshClient, error) {
@@ -77,6 +77,29 @@ func createSSHClient(host string) (*sshClient, error) {
 func (client sshClient) close() {
 	client.Client.Close()
 	client.Session.Close()
+}
+
+func (client sshClient) scp(data string, filename string) error {
+
+	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
+
+	go func() {
+		stdin, err := client.Session.StdinPipe()
+
+		if err != nil {
+			return
+		}
+
+		defer stdin.Close()
+
+		fmt.Fprintln(stdin, "C0644", len(data), filename)
+		fmt.Fprint(stdin, data)
+		fmt.Fprint(stdin, "\x00")
+	}()
+
+	_, err := client.runCommands("scp -t " + filename)
+
+	return err
 }
 
 func (client sshClient) runCommands(commands ...string) (string, error) {
