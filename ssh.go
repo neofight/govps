@@ -191,3 +191,31 @@ func runCommands(session *ssh.Session, commands ...string) (string, error) {
 
 	return buffer.String(), nil
 }
+
+func runSudoCommands(session *ssh.Session, password []byte, commands ...string) (string, error) {
+
+	go func() {
+		stdin, err := session.StdinPipe()
+
+		if err != nil {
+			return
+		}
+
+		defer stdin.Close()
+
+		fmt.Fprintln(stdin, string(password))
+	}()
+
+	var buffer bytes.Buffer
+	session.Stdout = &buffer
+
+	command := fmt.Sprintf("sudo -S sh -c '%v'", strings.Join(commands, ";"))
+
+	err := session.Run(command)
+
+	if err != nil {
+		return "", err
+	}
+
+	return buffer.String(), nil
+}

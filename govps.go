@@ -43,6 +43,23 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to download file: ", err)
 	}
+
+	session, err := client.NewSession()
+
+	if err != nil {
+		log.Fatal("Unable to create session: ", err)
+	}
+
+	defer session.Close()
+
+	result, err := runSudoCommands(session, password, "mv "+domain+" /etc/nginx/sites-available/")
+
+	if err != nil {
+		fmt.Println(result)
+		log.Fatal("Unable to move Nginx configuration file to the correct location: ", err)
+	}
+
+	fmt.Print(result)
 }
 
 func promptForPassword() ([]byte, error) {
