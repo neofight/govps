@@ -21,9 +21,15 @@ func main() {
 
 	defer client.Close()
 
-	err = scp(client, config, domain)
+	err = scpUpload(client, config, domain)
 
 	if err != nil {
 		log.Fatal("Failed to upload file: ", err)
+	}
+
+	err = scpDownload(client, "/etc/nginx/fastcgi_params")
+
+	if err != nil {
+		log.Fatal("Failed to download file: ", err)
 	}
 }

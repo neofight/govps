@@ -6,8 +6,12 @@ import "encoding/pem"
 import "fmt"
 import "golang.org/x/crypto/ssh"
 import "golang.org/x/crypto/ssh/terminal"
+import "io"
 import "io/ioutil"
+import "os"
 import "os/user"
+import "path/filepath"
+import "strconv"
 import "strings"
 
 func createSSHClient(host string) (*ssh.Client, error) {
@@ -62,7 +66,92 @@ func createSSHClient(host string) (*ssh.Client, error) {
 	return client, nil
 }
 
-func scp(client *ssh.Client, data string, filename string) error {
+func scpDownload(client *ssh.Client, path string) error {
+
+	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
+
+	_, filename := filepath.Split(path)
+
+	session, err := client.NewSession()
+
+	if err != nil {
+		return fmt.Errorf("Unable to create session: %v", err)
+	}
+
+	defer session.Close()
+
+	go func() {
+		stdin, err := session.StdinPipe()
+
+		if err != nil {
+			return
+		}
+
+		stdout, err := session.StdoutPipe()
+
+		if err != nil {
+			return
+		}
+
+		buffer := make([]byte, 1024)
+
+		fmt.Fprint(stdin, "\x00")
+
+		n, err := stdout.Read(buffer)
+
+		if err != nil && err != io.EOF {
+			return
+		}
+
+		header := string(buffer[:n])
+
+		size, err := strconv.Atoi(strings.Split(header, " ")[1])
+
+		if err != nil {
+			return
+		}
+
+		fmt.Fprint(stdin, "\x00")
+
+		file, err := os.Create(filename)
+
+		if err != nil {
+			return
+		}
+
+		defer file.Close()
+
+		var read = 0
+
+		for {
+			n, err := stdout.Read(buffer)
+
+			if err != nil {
+				if err == io.EOF {
+					break
+				} else {
+					return
+				}
+			}
+
+			if size-read < n {
+				n = size - read
+			}
+
+			read += n
+
+			file.Write(buffer[:n])
+
+			fmt.Fprint(stdin, "\x00")
+		}
+	}()
+
+	err = session.Run("scp -f " + path)
+
+	return err
+}
+
+func scpUpload(client *ssh.Client, data string, filename string) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
