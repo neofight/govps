@@ -14,10 +14,9 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
-func createSSHClient(host string) (*ssh.Client, error) {
+func createSSHClient(host string, password []byte) (*ssh.Client, error) {
 
 	currentUser, err := user.Current()
 
@@ -29,14 +28,6 @@ func createSSHClient(host string) (*ssh.Client, error) {
 
 	if err != nil {
 		return nil, fmt.Errorf("Unable to read private key: %v", err)
-	}
-
-	fmt.Print("Enter password:")
-	password, err := terminal.ReadPassword(0)
-	fmt.Println()
-
-	if err != nil {
-		return nil, fmt.Errorf("Unable to read password: %v", err)
 	}
 
 	var block, _ = pem.Decode(encryptedKey)
