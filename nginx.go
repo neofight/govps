@@ -6,19 +6,58 @@ import (
 	"text/template"
 )
 
-func createNginxHostConfiguration(domain string) (string, error) {
+type AddNginxConfig struct {
+	domain   string
+	password []byte
+}
+
+func (step AddNginxConfig) Execute(cxt context) error {
 
 	template, err := template.New("nginx").Parse(nginxTemplate)
 
 	if err != nil {
-		return "", fmt.Errorf("Unable to parse Nginx Host Configuration template: %v", err)
+		return fmt.Errorf("Unable to parse Nginx Host Configuration template: %v", err)
 	}
 
 	var buffer bytes.Buffer
 
-	template.Execute(&buffer, domain)
+	template.Execute(&buffer, step.domain)
 
-	return buffer.String(), nil
+	err = scpUpload(cxt.Client, buffer.String(), step.domain)
+
+	if err != nil {
+		return fmt.Errorf("Failed to upload file: %v", err)
+	}
+
+	session, err := cxt.Client.NewSession()
+
+	if err != nil {
+		return fmt.Errorf("Unable to create session: %v", err)
+	}
+
+	defer session.Close()
+
+	_, err = runSudoCommands(session, step.password, "mv "+step.domain+" /etc/nginx/sites-available/")
+
+	if err != nil {
+		return fmt.Errorf("Unable to move Nginx configuration file to the correct location: %v", err)
+	}
+
+	return nil
+}
+
+type AddNginxFastCGIParameters struct {
+}
+
+func (step AddNginxFastCGIParameters) Execute(cxt context) error {
+
+	err := scpDownload(cxt.Client, "/etc/nginx/fastcgi_params")
+
+	if err != nil {
+		return fmt.Errorf("Failed to download file: %v", err)
+	}
+
+	return nil
 }
 
 var nginxTemplate = `server {
