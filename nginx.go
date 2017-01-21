@@ -1,8 +1,10 @@
 package main
 
-import "bytes"
-import "fmt"
-import "text/template"
+import (
+	"bytes"
+	"fmt"
+	"text/template"
+)
 
 func createNginxHostConfiguration(domain string) (string, error) {
 

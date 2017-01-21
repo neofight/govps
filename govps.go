@@ -1,7 +1,9 @@
 package main
 
-import "log"
-import "os"
+import (
+	"log"
+	"os"
+)
 
 func main() {
 	host := os.Args[1]

@@ -1,18 +1,21 @@
 package main
 
-import "bytes"
-import "crypto/x509"
-import "encoding/pem"
-import "fmt"
-import "golang.org/x/crypto/ssh"
-import "golang.org/x/crypto/ssh/terminal"
-import "io"
-import "io/ioutil"
-import "os"
-import "os/user"
-import "path/filepath"
-import "strconv"
-import "strings"
+import (
+	"bytes"
+	"crypto/x509"
+	"encoding/pem"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"os/user"
+	"path/filepath"
+	"strconv"
+	"strings"
+
+	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/terminal"
+)
 
 func createSSHClient(host string) (*ssh.Client, error) {
 
