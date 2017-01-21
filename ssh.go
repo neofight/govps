@@ -7,9 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"os/user"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -60,19 +58,19 @@ func createSSHClient(host string, password []byte) (*ssh.Client, error) {
 	return client, nil
 }
 
-func scpDownload(client *ssh.Client, path string) error {
+func scpDownload(client *ssh.Client, path string) (string, error) {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
-
-	_, filename := filepath.Split(path)
 
 	session, err := client.NewSession()
 
 	if err != nil {
-		return fmt.Errorf("Unable to create session: %v", err)
+		return "", fmt.Errorf("Unable to create session: %v", err)
 	}
 
 	defer session.Close()
+
+	c := make(chan string)
 
 	go func() {
 		stdin, err := session.StdinPipe()
@@ -87,17 +85,17 @@ func scpDownload(client *ssh.Client, path string) error {
 			return
 		}
 
-		buffer := make([]byte, 1024)
+		readBuffer := make([]byte, 1024)
 
 		fmt.Fprint(stdin, "\x00")
 
-		n, err := stdout.Read(buffer)
+		n, err := stdout.Read(readBuffer)
 
 		if err != nil && err != io.EOF {
 			return
 		}
 
-		header := string(buffer[:n])
+		header := string(readBuffer[:n])
 
 		size, err := strconv.Atoi(strings.Split(header, " ")[1])
 
@@ -107,23 +105,18 @@ func scpDownload(client *ssh.Client, path string) error {
 
 		fmt.Fprint(stdin, "\x00")
 
-		file, err := os.Create(filename)
-
-		if err != nil {
-			return
-		}
-
-		defer file.Close()
-
 		var read = 0
 
+		var writeBuffer bytes.Buffer
+
 		for {
-			n, err := stdout.Read(buffer)
+			n, err := stdout.Read(readBuffer)
 
 			if err != nil {
 				if err == io.EOF {
 					break
 				} else {
+					close(c)
 					return
 				}
 			}
@@ -134,15 +127,23 @@ func scpDownload(client *ssh.Client, path string) error {
 
 			read += n
 
-			file.Write(buffer[:n])
+			writeBuffer.Write(readBuffer[:n])
 
 			fmt.Fprint(stdin, "\x00")
 		}
+
+		c <- writeBuffer.String()
 	}()
 
 	err = session.Run("scp -f " + path)
 
-	return err
+	if err != nil {
+		return "", err
+	}
+
+	result := <-c
+
+	return result, nil
 }
 
 func scpUpload(client *ssh.Client, data string, filename string) error {

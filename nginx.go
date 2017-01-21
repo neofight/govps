@@ -51,11 +51,13 @@ type AddNginxFastCGIParameters struct {
 
 func (step AddNginxFastCGIParameters) Execute(cxt context) error {
 
-	err := scpDownload(cxt.Client, "/etc/nginx/fastcgi_params")
+	data, err := scpDownload(cxt.Client, "/etc/nginx/fastcgi_params")
 
 	if err != nil {
 		return fmt.Errorf("Failed to download file: %v", err)
 	}
+
+	fmt.Print(data)
 
 	return nil
 }
