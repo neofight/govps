@@ -19,9 +19,9 @@ func main() {
 		log.Fatal("Error creating SSH client: ", err)
 	}
 
-	defer client.close()
+	defer client.Close()
 
-	err = client.scp(config, domain)
+	err = scp(client, config, domain)
 
 	if err != nil {
 		log.Fatal("Failed to upload file: ", err)

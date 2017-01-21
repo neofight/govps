@@ -10,12 +10,7 @@ import "io/ioutil"
 import "os/user"
 import "strings"
 
-type sshClient struct {
-	Client  *ssh.Client
-	Session *ssh.Session
-}
-
-func createSSHClient(host string) (*sshClient, error) {
+func createSSHClient(host string) (*ssh.Client, error) {
 
 	currentUser, err := user.Current()
 
@@ -64,27 +59,23 @@ func createSSHClient(host string) (*sshClient, error) {
 		return nil, fmt.Errorf("Unable to connect: %v", err)
 	}
 
-	session, err := client.NewSession()
-
-	if err != nil {
-		client.Close()
-		return nil, fmt.Errorf("Failed to create session: %v", err)
-	}
-
-	return &sshClient{client, session}, nil
+	return client, nil
 }
 
-func (client sshClient) close() {
-	client.Client.Close()
-	client.Session.Close()
-}
-
-func (client sshClient) scp(data string, filename string) error {
+func scp(client *ssh.Client, data string, filename string) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
+	session, err := client.NewSession()
+
+	if err != nil {
+		return fmt.Errorf("Unable to create session: %v", err)
+	}
+
+	defer session.Close()
+
 	go func() {
-		stdin, err := client.Session.StdinPipe()
+		stdin, err := session.StdinPipe()
 
 		if err != nil {
 			return
@@ -97,18 +88,19 @@ func (client sshClient) scp(data string, filename string) error {
 		fmt.Fprint(stdin, "\x00")
 	}()
 
-	_, err := client.runCommands("scp -t " + filename)
+	_, err = runCommands(session, "scp -t "+filename)
 
 	return err
 }
 
-func (client sshClient) runCommands(commands ...string) (string, error) {
+func runCommands(session *ssh.Session, commands ...string) (string, error) {
+
 	var buffer bytes.Buffer
-	client.Session.Stdout = &buffer
+	session.Stdout = &buffer
 
 	command := strings.Join(commands, ";")
 
-	err := client.Session.Run(command)
+	err := session.Run(command)
 
 	if err != nil {
 		return "", err
