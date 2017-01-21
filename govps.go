@@ -27,8 +27,8 @@ func main() {
 	defer client.Close()
 
 	pipeline := []step{
-		AddNginxConfig{domain, password},
-		AddNginxFastCGIParameters{},
+		addNginxConfig{domain, password},
+		addNginxFastCGIParameters{},
 	}
 
 	executePipeline(context{client}, pipeline)

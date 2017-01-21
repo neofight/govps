@@ -6,12 +6,12 @@ import (
 	"text/template"
 )
 
-type AddNginxConfig struct {
+type addNginxConfig struct {
 	domain   string
 	password []byte
 }
 
-func (step AddNginxConfig) Execute(cxt context) error {
+func (step addNginxConfig) Execute(cxt context) error {
 
 	template, err := template.New("nginx").Parse(nginxTemplate)
 
@@ -46,10 +46,10 @@ func (step AddNginxConfig) Execute(cxt context) error {
 	return nil
 }
 
-type AddNginxFastCGIParameters struct {
+type addNginxFastCGIParameters struct {
 }
 
-func (step AddNginxFastCGIParameters) Execute(cxt context) error {
+func (step addNginxFastCGIParameters) Execute(cxt context) error {
 
 	data, err := scpDownload(cxt.Client, "/etc/nginx/fastcgi_params")
 
