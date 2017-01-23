@@ -23,24 +23,10 @@ func (step addNginxConfig) Execute(cxt context) error {
 
 	template.Execute(&buffer, step.domain)
 
-	err = scpUploadAsUser(cxt.Client, buffer.String(), step.domain)
+	err = scpUploadAsRoot(cxt.Client, buffer.String(), "/etc/nginx/sites-available/"+step.domain, step.password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload file: %v", err)
-	}
-
-	session, err := cxt.Client.NewSession()
-
-	if err != nil {
-		return fmt.Errorf("Unable to create session: %v", err)
-	}
-
-	defer session.Close()
-
-	err = runSudoCommand(session, "mv "+step.domain+" /etc/nginx/sites-available/", step.password)
-
-	if err != nil {
-		return fmt.Errorf("Unable to move Nginx configuration file to the correct location: %v", err)
 	}
 
 	return nil

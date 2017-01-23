@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os/user"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -146,22 +147,24 @@ func scpDownload(client *ssh.Client, path string) (string, error) {
 	return result, nil
 }
 
-func scpUploadAsUser(client *ssh.Client, data string, filename string) error {
+func scpUploadAsUser(client *ssh.Client, data string, filePath string) error {
 
-	return scpUpload(client, data, filename, run)
+	return scpUpload(client, data, filePath, run)
 }
 
-func scpUploadAsRoot(client *ssh.Client, data string, filename string, password []byte) error {
+func scpUploadAsRoot(client *ssh.Client, data string, filePath string, password []byte) error {
 
-	return scpUpload(client, data, filename, func(session *ssh.Session, command string, inputs []string) error {
+	return scpUpload(client, data, filePath, func(session *ssh.Session, command string, inputs []string) error {
 
 		return runSudo(session, command, inputs, password)
 	})
 }
 
-func scpUpload(client *ssh.Client, data string, filename string, run func(*ssh.Session, string, []string) error) error {
+func scpUpload(client *ssh.Client, data string, filePath string, run func(*ssh.Session, string, []string) error) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
+
+	_, filename := filepath.Split(filePath)
 
 	session, err := client.NewSession()
 
@@ -177,7 +180,7 @@ func scpUpload(client *ssh.Client, data string, filename string, run func(*ssh.S
 	inputs[1] = fmt.Sprint(data)
 	inputs[2] = fmt.Sprint("\x00")
 
-	return run(session, "scp -t "+filename, inputs)
+	return run(session, "scp -t "+filePath, inputs)
 }
 
 func runSudoCommand(session *ssh.Session, command string, password []byte) error {
