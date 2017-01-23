@@ -30,6 +30,8 @@ func (step addNginxConfig) Execute(cxt context) error {
 		return fmt.Errorf("Failed to upload file: %v", err)
 	}
 
+	fmt.Printf("Nginx configuration file for %v uploaded\n", step.domain)
+
 	return nil
 }
 
