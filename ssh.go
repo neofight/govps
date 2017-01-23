@@ -146,7 +146,20 @@ func scpDownload(client *ssh.Client, path string) (string, error) {
 	return result, nil
 }
 
-func scpUpload(client *ssh.Client, data string, filename string) error {
+func scpUploadAsUser(client *ssh.Client, data string, filename string) error {
+
+	return scpUpload(client, data, filename, run)
+}
+
+func scpUploadAsRoot(client *ssh.Client, data string, filename string, password []byte) error {
+
+	return scpUpload(client, data, filename, func(session *ssh.Session, command string, inputs []string) error {
+
+		return runSudo(session, command, inputs, password)
+	})
+}
+
+func scpUpload(client *ssh.Client, data string, filename string, run func(*ssh.Session, string, []string) error) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
@@ -158,42 +171,30 @@ func scpUpload(client *ssh.Client, data string, filename string) error {
 
 	defer session.Close()
 
-	go func() {
-		stdin, err := session.StdinPipe()
+	inputs := make([]string, 3)
 
-		if err != nil {
-			return
-		}
+	inputs[0] = fmt.Sprintln("C0644", len(data), filename)
+	inputs[1] = fmt.Sprint(data)
+	inputs[2] = fmt.Sprint("\x00")
 
-		defer stdin.Close()
-
-		fmt.Fprintln(stdin, "C0644", len(data), filename)
-		fmt.Fprint(stdin, data)
-		fmt.Fprint(stdin, "\x00")
-	}()
-
-	_, err = runCommands(session, "scp -t "+filename)
-
-	return err
+	return run(session, "scp -t "+filename, inputs)
 }
 
-func runCommands(session *ssh.Session, commands ...string) (string, error) {
+func runSudoCommand(session *ssh.Session, command string, password []byte) error {
 
-	var buffer bytes.Buffer
-	session.Stdout = &buffer
-
-	command := strings.Join(commands, ";")
-
-	err := session.Run(command)
-
-	if err != nil {
-		return "", err
-	}
-
-	return buffer.String(), nil
+	return runSudo(session, command, []string{}, password)
 }
 
-func runSudoCommands(session *ssh.Session, password []byte, commands ...string) (string, error) {
+func runSudo(session *ssh.Session, command string, inputs []string, password []byte) error {
+
+	command = "sudo -S " + command
+
+	inputs = append([]string{string(password) + "\n"}, inputs...)
+
+	return run(session, command, inputs)
+}
+
+func run(session *ssh.Session, command string, inputs []string) error {
 
 	go func() {
 		stdin, err := session.StdinPipe()
@@ -204,19 +205,10 @@ func runSudoCommands(session *ssh.Session, password []byte, commands ...string) 
 
 		defer stdin.Close()
 
-		fmt.Fprintln(stdin, string(password))
+		for _, input := range inputs {
+			fmt.Fprint(stdin, input)
+		}
 	}()
 
-	var buffer bytes.Buffer
-	session.Stdout = &buffer
-
-	command := fmt.Sprintf("sudo -S sh -c '%v'", strings.Join(commands, ";"))
-
-	err := session.Run(command)
-
-	if err != nil {
-		return "", err
-	}
-
-	return buffer.String(), nil
+	return session.Run(command)
 }
