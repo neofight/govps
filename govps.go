@@ -27,11 +27,11 @@ func main() {
 	defer client.Close()
 
 	pipeline := []step{
-		addNginxConfig{domain, password},
+		addNginxConfig{domain},
 		addNginxFastCGIParameters{},
 	}
 
-	executePipeline(context{client}, pipeline)
+	executePipeline(context{client, password}, pipeline)
 }
 
 func promptForPassword() ([]byte, error) {

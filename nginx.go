@@ -7,8 +7,7 @@ import (
 )
 
 type addNginxConfig struct {
-	domain   string
-	password []byte
+	domain string
 }
 
 func (step addNginxConfig) Execute(cxt context) error {
@@ -23,7 +22,7 @@ func (step addNginxConfig) Execute(cxt context) error {
 
 	template.Execute(&buffer, step.domain)
 
-	err = scpUploadAsRoot(cxt.Client, buffer.String(), "/etc/nginx/sites-available/"+step.domain, step.password)
+	err = scpUploadAsRoot(cxt.Client, buffer.String(), "/etc/nginx/sites-available/"+step.domain, cxt.password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload file: %v", err)

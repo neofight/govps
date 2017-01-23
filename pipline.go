@@ -5,7 +5,8 @@ import (
 )
 
 type context struct {
-	Client *ssh.Client
+	Client   *ssh.Client
+	password []byte
 }
 
 type step interface {
