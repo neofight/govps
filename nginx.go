@@ -24,7 +24,7 @@ func (step addNginxConfig) Execute(cxt context) error {
 
 	template.Execute(&buffer, step.domain)
 
-	err = scpUploadAsRoot(cxt.Client, buffer.String(), "/etc/nginx/sites-available/"+step.domain, cxt.password)
+	err = scpUploadDataAsRoot(cxt.Client, buffer.String(), "/etc/nginx/sites-available/"+step.domain, cxt.password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload file: %v", err)
@@ -40,7 +40,7 @@ type addNginxFastCGIParameters struct {
 
 func (step addNginxFastCGIParameters) Execute(cxt context) error {
 
-	file, err := scpDownload(cxt.Client, "/etc/nginx/fastcgi_params")
+	file, err := scpDownloadFile(cxt.Client, "/etc/nginx/fastcgi_params")
 
 	if err != nil {
 		return fmt.Errorf("Failed to download file: %v", err)
@@ -81,7 +81,7 @@ func (step addNginxFastCGIParameters) Execute(cxt context) error {
 	if pathInfoSet && scriptFilenameSet {
 		return nil
 	} else {
-		return scpUploadAsRoot(cxt.Client, file, "/etc/nginx/fastcgi_params", cxt.password)
+		return scpUploadDataAsRoot(cxt.Client, file, "/etc/nginx/fastcgi_params", cxt.password)
 	}
 }
 

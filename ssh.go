@@ -59,7 +59,7 @@ func createSSHClient(host string, password []byte) (*ssh.Client, error) {
 	return client, nil
 }
 
-func scpDownload(client *ssh.Client, path string) (string, error) {
+func scpDownloadFile(client *ssh.Client, path string) (string, error) {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
@@ -147,20 +147,20 @@ func scpDownload(client *ssh.Client, path string) (string, error) {
 	return result, nil
 }
 
-func scpUploadAsUser(client *ssh.Client, data string, filePath string) error {
+func scpUploadDataAsUser(client *ssh.Client, data string, filePath string) error {
 
-	return scpUpload(client, data, filePath, run)
+	return scpUploadData(client, data, filePath, run)
 }
 
-func scpUploadAsRoot(client *ssh.Client, data string, filePath string, password []byte) error {
+func scpUploadDataAsRoot(client *ssh.Client, data string, filePath string, password []byte) error {
 
-	return scpUpload(client, data, filePath, func(session *ssh.Session, command string, inputs []string) error {
+	return scpUploadData(client, data, filePath, func(session *ssh.Session, command string, inputs []string) error {
 
 		return runSudo(session, command, inputs, password)
 	})
 }
 
-func scpUpload(client *ssh.Client, data string, filePath string, run func(*ssh.Session, string, []string) error) error {
+func scpUploadData(client *ssh.Client, data string, filePath string, run func(*ssh.Session, string, []string) error) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
