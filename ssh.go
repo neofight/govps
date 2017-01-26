@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"os/user"
 	"path/filepath"
 	"strconv"
@@ -181,6 +182,82 @@ func scpUploadData(client *ssh.Client, data string, filePath string, run func(*s
 	inputs[2] = fmt.Sprint("\x00")
 
 	return run(session, "scp -t "+filePath, inputs)
+}
+
+func scpUploadAsUser(client *ssh.Client, localPath string, remotePath string) error {
+
+	return scpUpload(client, localPath, remotePath, run)
+}
+
+func scpUploadAsRoot(client *ssh.Client, localPath string, remotePath string, password []byte) error {
+
+	return scpUpload(client, localPath, remotePath, func(session *ssh.Session, command string, inputs []string) error {
+
+		return runSudo(session, command, inputs, password)
+	})
+}
+
+func scpUpload(client *ssh.Client, localPath string, remotePath string, run func(*ssh.Session, string, []string) error) error {
+
+	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
+
+	session, err := client.NewSession()
+
+	if err != nil {
+		return fmt.Errorf("Unable to create session: %v", err)
+	}
+
+	defer session.Close()
+
+	inputs := make([]string, 0)
+
+	var dirs stack
+
+	filepath.Walk(localPath, func(path string, info os.FileInfo, _ error) error {
+
+		for dirs.Count() > 0 && !strings.HasPrefix(path, dirs.Peep()) {
+			dirs.Pop()
+			inputs = append(inputs, "E\n")
+		}
+
+		if info.IsDir() {
+			dirs.Push(path)
+			inputs = append(inputs, "D0755 0 "+info.Name()+"\n")
+		} else {
+			messages, err := createFileMessages(path)
+
+			if err != nil {
+				return fmt.Errorf("Unable to upload file: %v", err)
+			}
+
+			inputs = append(inputs, messages...)
+		}
+
+		return nil
+	})
+
+	return run(session, "scp -tr "+remotePath, inputs)
+}
+
+func createFileMessages(path string) ([]string, error) {
+
+	_, filename := filepath.Split(path)
+
+	buffer, err := ioutil.ReadFile(path)
+
+	if err != nil {
+		return nil, fmt.Errorf("Unable to read file: %v", err)
+	}
+
+	data := string(buffer)
+
+	messages := make([]string, 3)
+
+	messages[0] = fmt.Sprintln("C0644", len(data), filename)
+	messages[1] = fmt.Sprint(data)
+	messages[2] = fmt.Sprint("\x00")
+
+	return messages, nil
 }
 
 func runSudoCommand(session *ssh.Session, command string, password []byte) error {

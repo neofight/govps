@@ -29,6 +29,7 @@ func main() {
 	pipeline := []step{
 		addNginxConfig{domain},
 		addNginxFastCGIParameters{},
+		publishMVC{domain},
 	}
 
 	executePipeline(context{client, password}, pipeline)
