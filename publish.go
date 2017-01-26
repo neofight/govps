@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/neofight/govps/ssh"
 )
@@ -26,5 +28,28 @@ func (step publishMVC) Execute(cxt context) error {
 		return fmt.Errorf("Unable to create directory: %v", err)
 	}
 
-	return ssh.ScpUploadAsRoot(cxt.Client, ".", "/var/www/"+step.domain, cxt.password)
+	return ssh.ScpUploadAsRoot(cxt.Client, ".", "/var/www/"+step.domain, cxt.password, func(path string, info os.FileInfo) bool {
+
+		if info.IsDir() {
+			switch path {
+			case "bin", "obj", "packages":
+				return false
+			default:
+				return true
+			}
+		}
+
+		dir, _ := filepath.Split(path)
+
+		if dir == "" {
+			switch path {
+			case "Global.asax", "Web.config":
+				return true
+			default:
+				return false
+			}
+		}
+
+		return true
+	})
 }

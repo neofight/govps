@@ -185,20 +185,22 @@ func scpUploadData(client *ssh.Client, data string, filePath string, run func(*s
 	return run(session, "scp -t "+filePath, inputs)
 }
 
-func ScpUploadAsUser(client *ssh.Client, localPath string, remotePath string) error {
+type FilterFunc func(path string, info os.FileInfo) bool
 
-	return scpUpload(client, localPath, remotePath, run)
+func ScpUploadAsUser(client *ssh.Client, localPath string, remotePath string, filter FilterFunc) error {
+
+	return scpUpload(client, localPath, remotePath, filter, run)
 }
 
-func ScpUploadAsRoot(client *ssh.Client, localPath string, remotePath string, password []byte) error {
+func ScpUploadAsRoot(client *ssh.Client, localPath string, remotePath string, password []byte, filter FilterFunc) error {
 
-	return scpUpload(client, localPath, remotePath, func(session *ssh.Session, command string, inputs []string) error {
+	return scpUpload(client, localPath, remotePath, filter, func(session *ssh.Session, command string, inputs []string) error {
 
 		return runSudo(session, command, inputs, password)
 	})
 }
 
-func scpUpload(client *ssh.Client, localPath string, remotePath string, run func(*ssh.Session, string, []string) error) error {
+func scpUpload(client *ssh.Client, localPath string, remotePath string, filter FilterFunc, run func(*ssh.Session, string, []string) error) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
@@ -215,6 +217,15 @@ func scpUpload(client *ssh.Client, localPath string, remotePath string, run func
 	var dirs stack.Stack
 
 	filepath.Walk(localPath, func(path string, info os.FileInfo, _ error) error {
+
+		if !filter(path, info) {
+
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+
+			return nil
+		}
 
 		for dirs.Count() > 0 && !strings.HasPrefix(path, dirs.Peep()) {
 			dirs.Pop()
