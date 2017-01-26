@@ -32,7 +32,7 @@ func (step publishMVC) Execute(cxt context) error {
 
 		if info.IsDir() {
 			switch path {
-			case "bin", "obj", "packages":
+			case "obj", "packages":
 				return false
 			default:
 				return true
