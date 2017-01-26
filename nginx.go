@@ -67,7 +67,7 @@ func (step addNginxFastCGIParameters) Execute(cxt context) error {
 	}
 
 	if !pathInfoSet {
-		file += "\nfastcgi_param  PATH_INFO          \"\""
+		file += "\nfastcgi_param  PATH_INFO          \"\";"
 		fmt.Println("Added PATH_INFO to fastcgi_params")
 	} else {
 		fmt.Println("PATH_INFO already present in fastcgi_params")
