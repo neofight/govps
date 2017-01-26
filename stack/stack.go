@@ -1,14 +1,14 @@
-package main
+package stack
 
-type stack struct {
+type Stack struct {
 	stack []string
 }
 
-func (s *stack) Count() int {
+func (s *Stack) Count() int {
 	return len(s.stack)
 }
 
-func (s *stack) Peep() string {
+func (s *Stack) Peep() string {
 
 	l := len(s.stack)
 
@@ -19,7 +19,7 @@ func (s *stack) Peep() string {
 	return s.stack[l-1]
 }
 
-func (s *stack) Pop() string {
+func (s *Stack) Pop() string {
 
 	l := len(s.stack)
 
@@ -33,7 +33,7 @@ func (s *stack) Pop() string {
 	return v
 }
 
-func (s *stack) Push(v string) {
+func (s *Stack) Push(v string) {
 
 	s.stack = append(s.stack, v)
 }

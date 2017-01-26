@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/neofight/govps/ssh"
 )
 
 type publishMVC struct {
@@ -18,11 +20,11 @@ func (step publishMVC) Execute(cxt context) error {
 
 	defer session.Close()
 
-	err = runSudoCommand(session, "mkdir /var/www/"+step.domain, cxt.password)
+	err = ssh.RunSudoCommand(session, "mkdir /var/www/"+step.domain, cxt.password)
 
 	if err != nil {
 		return fmt.Errorf("Unable to create directory: %v", err)
 	}
 
-	return scpUploadAsRoot(cxt.Client, ".", "/var/www/"+step.domain, cxt.password)
+	return ssh.ScpUploadAsRoot(cxt.Client, ".", "/var/www/"+step.domain, cxt.password)
 }

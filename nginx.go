@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 	"text/template"
+
+	"github.com/neofight/govps/ssh"
 )
 
 type addNginxConfig struct {
@@ -24,7 +26,7 @@ func (step addNginxConfig) Execute(cxt context) error {
 
 	template.Execute(&buffer, step.domain)
 
-	err = scpUploadDataAsRoot(cxt.Client, buffer.String(), "/etc/nginx/sites-available/"+step.domain, cxt.password)
+	err = ssh.ScpUploadDataAsRoot(cxt.Client, buffer.String(), "/etc/nginx/sites-available/"+step.domain, cxt.password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload file: %v", err)
@@ -40,7 +42,7 @@ type addNginxFastCGIParameters struct {
 
 func (step addNginxFastCGIParameters) Execute(cxt context) error {
 
-	file, err := scpDownloadFile(cxt.Client, "/etc/nginx/fastcgi_params")
+	file, err := ssh.ScpDownloadFile(cxt.Client, "/etc/nginx/fastcgi_params")
 
 	if err != nil {
 		return fmt.Errorf("Failed to download file: %v", err)
@@ -81,7 +83,7 @@ func (step addNginxFastCGIParameters) Execute(cxt context) error {
 	if pathInfoSet && scriptFilenameSet {
 		return nil
 	} else {
-		return scpUploadDataAsRoot(cxt.Client, file, "/etc/nginx/fastcgi_params", cxt.password)
+		return ssh.ScpUploadDataAsRoot(cxt.Client, file, "/etc/nginx/fastcgi_params", cxt.password)
 	}
 }
 

@@ -1,4 +1,4 @@
-package main
+package ssh
 
 import (
 	"bytes"
@@ -13,10 +13,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/neofight/govps/stack"
 	"golang.org/x/crypto/ssh"
 )
 
-func createSSHClient(host string, password []byte) (*ssh.Client, error) {
+func CreateSSHClient(host string, password []byte) (*ssh.Client, error) {
 
 	currentUser, err := user.Current()
 
@@ -60,7 +61,7 @@ func createSSHClient(host string, password []byte) (*ssh.Client, error) {
 	return client, nil
 }
 
-func scpDownloadFile(client *ssh.Client, path string) (string, error) {
+func ScpDownloadFile(client *ssh.Client, path string) (string, error) {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
@@ -148,12 +149,12 @@ func scpDownloadFile(client *ssh.Client, path string) (string, error) {
 	return result, nil
 }
 
-func scpUploadDataAsUser(client *ssh.Client, data string, filePath string) error {
+func ScpUploadDataAsUser(client *ssh.Client, data string, filePath string) error {
 
 	return scpUploadData(client, data, filePath, run)
 }
 
-func scpUploadDataAsRoot(client *ssh.Client, data string, filePath string, password []byte) error {
+func ScpUploadDataAsRoot(client *ssh.Client, data string, filePath string, password []byte) error {
 
 	return scpUploadData(client, data, filePath, func(session *ssh.Session, command string, inputs []string) error {
 
@@ -184,12 +185,12 @@ func scpUploadData(client *ssh.Client, data string, filePath string, run func(*s
 	return run(session, "scp -t "+filePath, inputs)
 }
 
-func scpUploadAsUser(client *ssh.Client, localPath string, remotePath string) error {
+func ScpUploadAsUser(client *ssh.Client, localPath string, remotePath string) error {
 
 	return scpUpload(client, localPath, remotePath, run)
 }
 
-func scpUploadAsRoot(client *ssh.Client, localPath string, remotePath string, password []byte) error {
+func ScpUploadAsRoot(client *ssh.Client, localPath string, remotePath string, password []byte) error {
 
 	return scpUpload(client, localPath, remotePath, func(session *ssh.Session, command string, inputs []string) error {
 
@@ -211,7 +212,7 @@ func scpUpload(client *ssh.Client, localPath string, remotePath string, run func
 
 	inputs := make([]string, 0)
 
-	var dirs stack
+	var dirs stack.Stack
 
 	filepath.Walk(localPath, func(path string, info os.FileInfo, _ error) error {
 
@@ -260,7 +261,7 @@ func createFileMessages(path string) ([]string, error) {
 	return messages, nil
 }
 
-func runSudoCommand(session *ssh.Session, command string, password []byte) error {
+func RunSudoCommand(session *ssh.Session, command string, password []byte) error {
 
 	return runSudo(session, command, []string{}, password)
 }

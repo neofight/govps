@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/neofight/govps/ssh"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -18,7 +19,7 @@ func main() {
 		log.Fatal("Unable to read password: ", err)
 	}
 
-	client, err := createSSHClient(host, password)
+	client, err := ssh.CreateSSHClient(host, password)
 
 	if err != nil {
 		log.Fatal("Error creating SSH client: ", err)
