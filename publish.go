@@ -22,7 +22,7 @@ func (step publishMVC) Execute(cxt context) error {
 
 	defer session.Close()
 
-	err = ssh.RunSudoCommand(session, "mkdir /var/www/"+step.domain, cxt.password)
+	err = ssh.RunSudoCommand(session, "mkdir -p /var/www/"+step.domain, cxt.password)
 
 	if err != nil {
 		return fmt.Errorf("Unable to create directory: %v", err)
