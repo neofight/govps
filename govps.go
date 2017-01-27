@@ -34,7 +34,11 @@ func main() {
 		installMonoFastCGIService{domain},
 	}
 
-	executePipeline(context{client, password}, pipeline)
+	err = executePipeline(context{client, password}, pipeline)
+
+	if err != nil {
+		log.Fatal("Error executing deployment process: ", err)
+	}
 }
 
 func promptForPassword() ([]byte, error) {
