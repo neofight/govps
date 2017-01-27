@@ -31,6 +31,7 @@ func main() {
 		addNginxConfig{domain},
 		addNginxFastCGIParameters{},
 		publishMVC{domain},
+		installMonoFastCGIService{domain},
 	}
 
 	executePipeline(context{client, password}, pipeline)
