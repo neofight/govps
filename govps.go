@@ -28,13 +28,13 @@ func main() {
 	defer client.Close()
 
 	pipeline := []step{
-		addNginxConfig{domain},
+		addNginxConfig{},
 		addNginxFastCGIParameters{},
-		publishMVC{domain},
-		installMonoFastCGIService{domain},
+		publishMVC{},
+		installMonoFastCGIService{},
 	}
 
-	err = executePipeline(context{client, password}, pipeline)
+	err = executePipeline(context{client, password, domain}, pipeline)
 
 	if err != nil {
 		log.Fatal("Error executing deployment process: ", err)

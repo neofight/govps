@@ -9,7 +9,6 @@ import (
 )
 
 type installMonoFastCGIService struct {
-	domain string
 }
 
 func (step installMonoFastCGIService) Execute(cxt context) error {
@@ -22,7 +21,7 @@ func (step installMonoFastCGIService) Execute(cxt context) error {
 
 	var buffer bytes.Buffer
 
-	template.Execute(&buffer, step.domain)
+	template.Execute(&buffer, cxt.domain)
 
 	err = ssh.ScpUploadDataAsRoot(cxt.Client, buffer.String(), "/lib/systemd/system/mono-fastcgi.service", cxt.password)
 

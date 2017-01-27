@@ -7,6 +7,7 @@ import (
 type context struct {
 	Client   *ssh.Client
 	password []byte
+	domain   string
 }
 
 type step interface {

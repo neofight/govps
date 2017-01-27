@@ -9,7 +9,6 @@ import (
 )
 
 type publishMVC struct {
-	domain string
 }
 
 func (step publishMVC) Execute(cxt context) error {
@@ -22,13 +21,13 @@ func (step publishMVC) Execute(cxt context) error {
 
 	defer session.Close()
 
-	err = ssh.RunSudoCommand(session, "mkdir -p /var/www/"+step.domain, cxt.password)
+	err = ssh.RunSudoCommand(session, "mkdir -p /var/www/"+cxt.domain, cxt.password)
 
 	if err != nil {
 		return fmt.Errorf("Unable to create directory: %v", err)
 	}
 
-	return ssh.ScpUploadAsRoot(cxt.Client, ".", "/var/www/"+step.domain, cxt.password, func(path string, info os.FileInfo) bool {
+	return ssh.ScpUploadAsRoot(cxt.Client, ".", "/var/www/"+cxt.domain, cxt.password, func(path string, info os.FileInfo) bool {
 
 		if info.IsDir() {
 			switch path {
