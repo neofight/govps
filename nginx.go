@@ -2,10 +2,8 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"strings"
-	"text/template"
 
 	"github.com/neofight/govps/ssh"
 )
@@ -15,20 +13,10 @@ type addNginxConfig struct {
 
 func (step addNginxConfig) Execute(cxt context) error {
 
-	template, err := template.New("nginx").Parse(nginxTemplate)
+	err := uploadTemplate(cxt, "nginx", nginxTemplate, cxt.domain, "/etc/nginx/sites-available/"+cxt.domain)
 
 	if err != nil {
-		return fmt.Errorf("Unable to parse Nginx Host Configuration template: %v", err)
-	}
-
-	var buffer bytes.Buffer
-
-	template.Execute(&buffer, cxt.domain)
-
-	err = ssh.ScpUploadDataAsRoot(cxt.Client, buffer.String(), "/etc/nginx/sites-available/"+cxt.domain, cxt.password)
-
-	if err != nil {
-		return fmt.Errorf("Failed to upload file: %v", err)
+		return fmt.Errorf("Failed to deploy nginx configuration file for %v: %v", cxt.domain, err)
 	}
 
 	fmt.Printf("Nginx configuration file for %v uploaded\n", cxt.domain)

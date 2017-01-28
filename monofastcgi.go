@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"text/template"
 
 	"github.com/neofight/govps/ssh"
 )
@@ -13,20 +11,10 @@ type installMonoFastCGIService struct {
 
 func (step installMonoFastCGIService) Execute(cxt context) error {
 
-	template, err := template.New("systemd").Parse(systemdTemplate)
+	err := uploadTemplate(cxt, "systemd", systemdTemplate, cxt.domain, "/lib/systemd/system/mono-fastcgi.service")
 
 	if err != nil {
-		return fmt.Errorf("Unable to parse systemd template: %v", err)
-	}
-
-	var buffer bytes.Buffer
-
-	template.Execute(&buffer, cxt.domain)
-
-	err = ssh.ScpUploadDataAsRoot(cxt.Client, buffer.String(), "/lib/systemd/system/mono-fastcgi.service", cxt.password)
-
-	if err != nil {
-		return fmt.Errorf("Failed to upload file: %v", err)
+		return fmt.Errorf("Failed to deploy Mono FastCGI service: %v", cxt.domain, err)
 	}
 
 	session, err := cxt.Client.NewSession()
