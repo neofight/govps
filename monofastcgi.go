@@ -17,29 +17,13 @@ func (step installMonoFastCGIService) Execute(cxt context) error {
 		return fmt.Errorf("Failed to deploy Mono FastCGI service: %v", cxt.domain, err)
 	}
 
-	session, err := cxt.Client.NewSession()
-
-	if err != nil {
-		return fmt.Errorf("Unable to create session: %v", err)
-	}
-
-	defer session.Close()
-
-	err = ssh.RunSudoCommand(session, "sudo systemctl enable mono-fastcgi", cxt.password)
+	err = ssh.RunSudoCommand(cxt.Client, "sudo systemctl enable mono-fastcgi", cxt.password)
 
 	if err != nil {
 		return fmt.Errorf("Unable to enable Mono FastCGI service: %v", err)
 	}
 
-	session, err = cxt.Client.NewSession()
-
-	if err != nil {
-		return fmt.Errorf("Unable to create session: %v", err)
-	}
-
-	defer session.Close()
-
-	err = ssh.RunSudoCommand(session, "sudo systemctl start mono-fastcgi", cxt.password)
+	err = ssh.RunSudoCommand(cxt.Client, "sudo systemctl start mono-fastcgi", cxt.password)
 
 	if err != nil {
 		return fmt.Errorf("Unable to start Mono FastCGI service: %v", err)

@@ -272,7 +272,15 @@ func createFileMessages(path string) ([]string, error) {
 	return messages, nil
 }
 
-func RunSudoCommand(session *ssh.Session, command string, password []byte) error {
+func RunSudoCommand(client *ssh.Client, command string, password []byte) error {
+
+	session, err := client.NewSession()
+
+	if err != nil {
+		return fmt.Errorf("Unable to create session: %v", err)
+	}
+
+	defer session.Close()
 
 	return runSudo(session, command, []string{}, password)
 }

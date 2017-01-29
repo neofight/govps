@@ -13,15 +13,7 @@ type publishMVC struct {
 
 func (step publishMVC) Execute(cxt context) error {
 
-	session, err := cxt.Client.NewSession()
-
-	if err != nil {
-		return fmt.Errorf("Unable to create session: %v", err)
-	}
-
-	defer session.Close()
-
-	err = ssh.RunSudoCommand(session, "mkdir -p /var/www/"+cxt.domain, cxt.password)
+	err := ssh.RunSudoCommand(cxt.Client, "mkdir -p /var/www/"+cxt.domain, cxt.password)
 
 	if err != nil {
 		return fmt.Errorf("Unable to create directory: %v", err)
