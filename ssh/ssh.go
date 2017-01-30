@@ -156,25 +156,17 @@ func ScpUploadDataAsUser(client *ssh.Client, data string, filePath string) error
 
 func ScpUploadDataAsRoot(client *ssh.Client, data string, filePath string, password []byte) error {
 
-	return scpUploadData(client, data, filePath, func(session *ssh.Session, command string, inputs []string) error {
+	return scpUploadData(client, data, filePath, func(client *ssh.Client, command string, inputs []string) error {
 
-		return runSudo(session, command, inputs, password)
+		return runSudo(client, command, inputs, password)
 	})
 }
 
-func scpUploadData(client *ssh.Client, data string, filePath string, run func(*ssh.Session, string, []string) error) error {
+func scpUploadData(client *ssh.Client, data string, filePath string, run func(*ssh.Client, string, []string) error) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
 	_, filename := filepath.Split(filePath)
-
-	session, err := client.NewSession()
-
-	if err != nil {
-		return fmt.Errorf("Unable to create session: %v", err)
-	}
-
-	defer session.Close()
 
 	inputs := make([]string, 3)
 
@@ -182,7 +174,7 @@ func scpUploadData(client *ssh.Client, data string, filePath string, run func(*s
 	inputs[1] = fmt.Sprint(data)
 	inputs[2] = fmt.Sprint("\x00")
 
-	return run(session, "scp -t "+filePath, inputs)
+	return run(client, "scp -t "+filePath, inputs)
 }
 
 type FilterFunc func(path string, info os.FileInfo) bool
@@ -194,23 +186,15 @@ func ScpUploadAsUser(client *ssh.Client, localPath string, remotePath string, fi
 
 func ScpUploadAsRoot(client *ssh.Client, localPath string, remotePath string, password []byte, filter FilterFunc) error {
 
-	return scpUpload(client, localPath, remotePath, filter, func(session *ssh.Session, command string, inputs []string) error {
+	return scpUpload(client, localPath, remotePath, filter, func(client *ssh.Client, command string, inputs []string) error {
 
-		return runSudo(session, command, inputs, password)
+		return runSudo(client, command, inputs, password)
 	})
 }
 
-func scpUpload(client *ssh.Client, localPath string, remotePath string, filter FilterFunc, run func(*ssh.Session, string, []string) error) error {
+func scpUpload(client *ssh.Client, localPath string, remotePath string, filter FilterFunc, run func(*ssh.Client, string, []string) error) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
-
-	session, err := client.NewSession()
-
-	if err != nil {
-		return fmt.Errorf("Unable to create session: %v", err)
-	}
-
-	defer session.Close()
 
 	inputs := make([]string, 0)
 
@@ -248,7 +232,7 @@ func scpUpload(client *ssh.Client, localPath string, remotePath string, filter F
 		return nil
 	})
 
-	return run(session, "scp -tr "+remotePath, inputs)
+	return run(client, "scp -tr "+remotePath, inputs)
 }
 
 func createFileMessages(path string) ([]string, error) {
@@ -274,14 +258,6 @@ func createFileMessages(path string) ([]string, error) {
 
 func RunSudoCommands(client *ssh.Client, password []byte, commands ...string) error {
 
-	session, err := client.NewSession()
-
-	if err != nil {
-		return fmt.Errorf("Unable to create session: %v", err)
-	}
-
-	defer session.Close()
-
 	var command string
 
 	if len(commands) == 1 {
@@ -290,10 +266,24 @@ func RunSudoCommands(client *ssh.Client, password []byte, commands ...string) er
 		command = fmt.Sprintf("sh -c '%v'", strings.Join(commands, ";"))
 	}
 
-	return runSudo(session, command, []string{}, password)
+	return runSudo(client, command, []string{}, password)
 }
 
 func RunCommand(client *ssh.Client, password []byte, command string, inputs ...string) error {
+
+	return run(client, command, inputs)
+}
+
+func runSudo(client *ssh.Client, command string, inputs []string, password []byte) error {
+
+	command = "sudo -S " + command
+
+	inputs = append([]string{string(password) + "\n"}, inputs...)
+
+	return run(client, command, inputs)
+}
+
+func run(client *ssh.Client, command string, inputs []string) error {
 
 	session, err := client.NewSession()
 
@@ -302,20 +292,6 @@ func RunCommand(client *ssh.Client, password []byte, command string, inputs ...s
 	}
 
 	defer session.Close()
-
-	return run(session, command, inputs)
-}
-
-func runSudo(session *ssh.Session, command string, inputs []string, password []byte) error {
-
-	command = "sudo -S " + command
-
-	inputs = append([]string{string(password) + "\n"}, inputs...)
-
-	return run(session, command, inputs)
-}
-
-func run(session *ssh.Session, command string, inputs []string) error {
 
 	go func() {
 		stdin, err := session.StdinPipe()
