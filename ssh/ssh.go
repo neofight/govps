@@ -293,6 +293,19 @@ func RunSudoCommands(client *ssh.Client, password []byte, commands ...string) er
 	return runSudo(session, command, []string{}, password)
 }
 
+func RunCommand(client *ssh.Client, password []byte, command string, inputs ...string) error {
+
+	session, err := client.NewSession()
+
+	if err != nil {
+		return fmt.Errorf("Unable to create session: %v", err)
+	}
+
+	defer session.Close()
+
+	return run(session, command, inputs)
+}
+
 func runSudo(session *ssh.Session, command string, inputs []string, password []byte) error {
 
 	command = "sudo -S " + command
