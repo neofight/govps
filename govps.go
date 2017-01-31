@@ -28,11 +28,11 @@ func main() {
 	defer client.Close()
 
 	pipeline := []step{
-		addNginxConfig{},
-		addNginxFastCGIParameters{},
+		createMySQLDatabase{},
 		publishMVC{},
 		installMonoFastCGIService{},
-		createMySQLDatabase{},
+		addNginxFastCGIParameters{},
+		addNginxConfig{},
 	}
 
 	err = executePipeline(context{client, password, domain}, pipeline)
