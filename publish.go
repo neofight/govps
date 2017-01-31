@@ -24,11 +24,15 @@ func (step publishMVC) Execute(cxt context) error {
 	return ssh.ScpUploadAsRoot(cxt.Client, ".", deployPath, cxt.password, func(path string, info os.FileInfo) bool {
 
 		if info.IsDir() {
-			switch path {
-			case "obj", "packages":
-				return false
-			default:
+			if path != filepath.Base(path) {
 				return true
+			}
+
+			switch path {
+			case ".", "bin", "Content", "fonts", "Scripts", "Views":
+				return true
+			default:
+				return false
 			}
 		}
 
