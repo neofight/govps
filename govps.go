@@ -30,6 +30,7 @@ func main() {
 	pipeline := []step{
 		createMySQLDatabase{},
 		publishMVC{},
+		addSiteToMonoFastCGIConfiguration{},
 		installMonoFastCGIService{},
 		addNginxFastCGIParameters{},
 		addNginxConfig{},
