@@ -15,7 +15,7 @@ func (step publishMVC) Execute(cxt context) error {
 
 	deployPath := "/var/www/" + cxt.domain
 
-	err := ssh.RunSudoCommands(cxt.Client, cxt.password, "rm -rf "+deployPath, "mkdir "+deployPath)
+	_, err := ssh.RunSudoCommands(cxt.Client, cxt.password, "rm -rf "+deployPath, "mkdir "+deployPath)
 
 	if err != nil {
 		return fmt.Errorf("Unable to create directory: %v", err)

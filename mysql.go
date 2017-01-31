@@ -74,10 +74,31 @@ func (step createMySQLDatabase) Execute(cxt context) error {
 		}
 	}
 
+	checkCommand := fmt.Sprintf("mysql -u root -p -BNe \"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%v'\"", db.Name)
 	password := fmt.Sprintf("%v\n", string(cxt.password))
+
+	result, err := ssh.RunCommand(cxt.Client, cxt.password, checkCommand, password)
+
+	if err != nil {
+		return fmt.Errorf("Failed to run query: %v", err)
+	}
+
+	if strings.TrimSpace(result) == db.Name {
+		fmt.Println("Database already created")
+		return nil
+	}
+
 	create := fmt.Sprintf("CREATE DATABASE %v;\n", db.Name)
 	grant := fmt.Sprintf("GRANT ALL ON %v.* TO '%v' IDENTIFIED BY '%v';\n", db.Name, db.User, db.Password)
 	quit := "QUIT\n"
 
-	return ssh.RunCommand(cxt.Client, cxt.password, "mysql -u root -p", password, create, grant, quit)
+	_, err = ssh.RunCommand(cxt.Client, cxt.password, "mysql -u root -p", password, create, grant, quit)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create database %v: %v", db.Name, err)
+	}
+
+	fmt.Println("Database created")
+
+	return nil
 }

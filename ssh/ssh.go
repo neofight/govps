@@ -156,13 +156,13 @@ func ScpUploadDataAsUser(client *ssh.Client, data string, filePath string) error
 
 func ScpUploadDataAsRoot(client *ssh.Client, data string, filePath string, password []byte) error {
 
-	return scpUploadData(client, data, filePath, func(client *ssh.Client, command string, inputs []string) error {
+	return scpUploadData(client, data, filePath, func(client *ssh.Client, command string, inputs []string) (string, error) {
 
 		return runSudo(client, command, inputs, password)
 	})
 }
 
-func scpUploadData(client *ssh.Client, data string, filePath string, run func(*ssh.Client, string, []string) error) error {
+func scpUploadData(client *ssh.Client, data string, filePath string, run func(*ssh.Client, string, []string) (string, error)) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
@@ -174,7 +174,13 @@ func scpUploadData(client *ssh.Client, data string, filePath string, run func(*s
 	inputs[1] = fmt.Sprint(data)
 	inputs[2] = fmt.Sprint("\x00")
 
-	return run(client, "scp -t "+filePath, inputs)
+	_, err := run(client, "scp -t "+filePath, inputs)
+
+	if err != nil {
+		return fmt.Errorf("Failed to upload to %v: %v", filePath, err)
+	}
+
+	return nil
 }
 
 type FilterFunc func(path string, info os.FileInfo) bool
@@ -186,13 +192,13 @@ func ScpUploadAsUser(client *ssh.Client, localPath string, remotePath string, fi
 
 func ScpUploadAsRoot(client *ssh.Client, localPath string, remotePath string, password []byte, filter FilterFunc) error {
 
-	return scpUpload(client, localPath, remotePath, filter, func(client *ssh.Client, command string, inputs []string) error {
+	return scpUpload(client, localPath, remotePath, filter, func(client *ssh.Client, command string, inputs []string) (string, error) {
 
 		return runSudo(client, command, inputs, password)
 	})
 }
 
-func scpUpload(client *ssh.Client, localPath string, remotePath string, filter FilterFunc, run func(*ssh.Client, string, []string) error) error {
+func scpUpload(client *ssh.Client, localPath string, remotePath string, filter FilterFunc, run func(*ssh.Client, string, []string) (string, error)) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
@@ -232,7 +238,13 @@ func scpUpload(client *ssh.Client, localPath string, remotePath string, filter F
 		return nil
 	})
 
-	return run(client, "scp -tr "+remotePath, inputs)
+	_, err := run(client, "scp -tr "+remotePath, inputs)
+
+	if err != nil {
+		return fmt.Errorf("Failed to complete upload: %v", err)
+	}
+
+	return nil
 }
 
 func createFileMessages(path string) ([]string, error) {
@@ -256,7 +268,7 @@ func createFileMessages(path string) ([]string, error) {
 	return messages, nil
 }
 
-func RunSudoCommands(client *ssh.Client, password []byte, commands ...string) error {
+func RunSudoCommands(client *ssh.Client, password []byte, commands ...string) (string, error) {
 
 	var command string
 
@@ -269,12 +281,12 @@ func RunSudoCommands(client *ssh.Client, password []byte, commands ...string) er
 	return runSudo(client, command, []string{}, password)
 }
 
-func RunCommand(client *ssh.Client, password []byte, command string, inputs ...string) error {
+func RunCommand(client *ssh.Client, password []byte, command string, inputs ...string) (string, error) {
 
 	return run(client, command, inputs)
 }
 
-func runSudo(client *ssh.Client, command string, inputs []string, password []byte) error {
+func runSudo(client *ssh.Client, command string, inputs []string, password []byte) (string, error) {
 
 	command = "sudo -S " + command
 
@@ -283,15 +295,18 @@ func runSudo(client *ssh.Client, command string, inputs []string, password []byt
 	return run(client, command, inputs)
 }
 
-func run(client *ssh.Client, command string, inputs []string) error {
+func run(client *ssh.Client, command string, inputs []string) (string, error) {
 
 	session, err := client.NewSession()
 
 	if err != nil {
-		return fmt.Errorf("Unable to create session: %v", err)
+		return "", fmt.Errorf("Unable to create session: %v", err)
 	}
 
 	defer session.Close()
+
+	var stdout bytes.Buffer
+	session.Stdout = &stdout
 
 	go func() {
 		stdin, err := session.StdinPipe()
@@ -307,5 +322,11 @@ func run(client *ssh.Client, command string, inputs []string) error {
 		}
 	}()
 
-	return session.Run(command)
+	err = session.Run(command)
+
+	if err != nil {
+		return "", fmt.Errorf("There was an error executing the command %v: %v", command, err)
+	}
+
+	return stdout.String(), nil
 }

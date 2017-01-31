@@ -32,6 +32,7 @@ func main() {
 		addNginxFastCGIParameters{},
 		publishMVC{},
 		installMonoFastCGIService{},
+		createMySQLDatabase{},
 	}
 
 	err = executePipeline(context{client, password, domain}, pipeline)
