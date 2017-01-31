@@ -21,7 +21,7 @@ func (step publishMVC) Execute(cxt context) error {
 		return fmt.Errorf("Unable to create directory: %v", err)
 	}
 
-	return ssh.ScpUploadAsRoot(cxt.Client, ".", deployPath, cxt.password, func(path string, info os.FileInfo) bool {
+	err = ssh.ScpUploadAsRoot(cxt.Client, ".", deployPath, cxt.password, func(path string, info os.FileInfo) bool {
 
 		if info.IsDir() {
 			if path != filepath.Base(path) {
@@ -49,4 +49,12 @@ func (step publishMVC) Execute(cxt context) error {
 
 		return true
 	})
+
+	if err != nil {
+		return fmt.Errorf("Failed to upload website: %v", err)
+	}
+
+	fmt.Println("Website published")
+
+	return nil
 }
