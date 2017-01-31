@@ -17,11 +17,15 @@ func (step installMonoFastCGIService) Execute(cxt context) error {
 		return fmt.Errorf("Failed to deploy Mono FastCGI service: %v", cxt.domain, err)
 	}
 
+	fmt.Println("Mono FastCGI service unit file uploaded")
+
 	err = ssh.RunSudoCommands(cxt.Client, cxt.password, "sudo systemctl enable mono-fastcgi")
 
 	if err != nil {
 		return fmt.Errorf("Unable to enable Mono FastCGI service: %v", err)
 	}
+
+	fmt.Println("Mono FastCGI service enabled")
 
 	err = ssh.RunSudoCommands(cxt.Client, cxt.password, "sudo systemctl start mono-fastcgi")
 
@@ -29,7 +33,7 @@ func (step installMonoFastCGIService) Execute(cxt context) error {
 		return fmt.Errorf("Unable to start Mono FastCGI service: %v", err)
 	}
 
-	fmt.Println("Mono FastCGI service created")
+	fmt.Println("Mono FastCGI service started")
 
 	return nil
 }
