@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/neofight/govps/ssh"
+	"github.com/neofight/govps/tasks"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -27,16 +28,16 @@ func main() {
 
 	defer client.Close()
 
-	pipeline := []step{
-		createMySQLDatabase{},
-		publishMVC{},
-		addSiteToMonoFastCGIConfiguration{},
-		installMonoFastCGIService{},
-		addNginxFastCGIParameters{},
-		addNginxConfig{},
+	pipeline := []tasks.Task{
+		tasks.CreateMySQLDatabase{},
+		tasks.PublishMVC{},
+		tasks.AddSiteToMonoFastCGIConfiguration{},
+		tasks.InstallMonoFastCGIService{},
+		tasks.AddNginxFastCGIParameters{},
+		tasks.AddNginxConfig{},
 	}
 
-	err = executePipeline(context{client, password, domain}, pipeline)
+	err = tasks.ExecutePipeline(tasks.Context{client, password, domain}, pipeline)
 
 	if err != nil {
 		log.Fatal("Error executing deployment process: ", err)

@@ -1,4 +1,4 @@
-package main
+package tasks
 
 import (
 	"encoding/xml"
@@ -9,7 +9,7 @@ import (
 	"github.com/neofight/govps/ssh"
 )
 
-type createMySQLDatabase struct {
+type CreateMySQLDatabase struct {
 }
 
 type connectionStrings struct {
@@ -28,7 +28,7 @@ type database struct {
 	Password string
 }
 
-func (step createMySQLDatabase) Execute(cxt context) error {
+func (step CreateMySQLDatabase) Execute(cxt Context) error {
 
 	var db database
 
@@ -75,9 +75,9 @@ func (step createMySQLDatabase) Execute(cxt context) error {
 	}
 
 	checkCommand := fmt.Sprintf("mysql -u root -p -BNe \"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%v'\"", db.Name)
-	password := fmt.Sprintf("%v\n", string(cxt.password))
+	password := fmt.Sprintf("%v\n", string(cxt.Password))
 
-	result, err := ssh.RunCommand(cxt.Client, cxt.password, checkCommand, password)
+	result, err := ssh.RunCommand(cxt.Client, cxt.Password, checkCommand, password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to run query: %v", err)
@@ -92,7 +92,7 @@ func (step createMySQLDatabase) Execute(cxt context) error {
 	grant := fmt.Sprintf("GRANT ALL ON %v.* TO '%v' IDENTIFIED BY '%v';\n", db.Name, db.User, db.Password)
 	quit := "QUIT\n"
 
-	_, err = ssh.RunCommand(cxt.Client, cxt.password, "mysql -u root -p", password, create, grant, quit)
+	_, err = ssh.RunCommand(cxt.Client, cxt.Password, "mysql -u root -p", password, create, grant, quit)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create database %v: %v", db.Name, err)

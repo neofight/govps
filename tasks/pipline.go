@@ -1,4 +1,4 @@
-package main
+package tasks
 
 import (
 	"bytes"
@@ -9,17 +9,17 @@ import (
 	cryptossh "golang.org/x/crypto/ssh"
 )
 
-type context struct {
+type Context struct {
 	Client   *cryptossh.Client
-	password []byte
-	domain   string
+	Password []byte
+	Domain   string
 }
 
-type step interface {
-	Execute(cxt context) error
+type Task interface {
+	Execute(cxt Context) error
 }
 
-func executePipeline(cxt context, steps []step) error {
+func ExecutePipeline(cxt Context, steps []Task) error {
 
 	for _, step := range steps {
 		err := step.Execute(cxt)
@@ -32,7 +32,7 @@ func executePipeline(cxt context, steps []step) error {
 	return nil
 }
 
-func uploadTemplate(cxt context, templateName string, templateText string, templateData interface{}, remotePath string) error {
+func uploadTemplate(cxt Context, templateName string, templateText string, templateData interface{}, remotePath string) error {
 
 	template, err := template.New(templateName).Parse(templateText)
 
@@ -48,7 +48,7 @@ func uploadTemplate(cxt context, templateName string, templateText string, templ
 		return fmt.Errorf("Failed to execute template: %v", err)
 	}
 
-	err = ssh.ScpUploadDataAsRoot(cxt.Client, buffer.String(), remotePath, cxt.password)
+	err = ssh.ScpUploadDataAsRoot(cxt.Client, buffer.String(), remotePath, cxt.Password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload file: %v", err)

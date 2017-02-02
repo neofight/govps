@@ -1,4 +1,4 @@
-package main
+package tasks
 
 import (
 	"encoding/xml"
@@ -7,20 +7,20 @@ import (
 	"github.com/neofight/govps/ssh"
 )
 
-type installMonoFastCGIService struct {
+type InstallMonoFastCGIService struct {
 }
 
-func (step installMonoFastCGIService) Execute(cxt context) error {
+func (step InstallMonoFastCGIService) Execute(cxt Context) error {
 
-	err := uploadTemplate(cxt, "systemd", systemdTemplate, cxt.domain, "/lib/systemd/system/mono-fastcgi.service")
+	err := uploadTemplate(cxt, "systemd", systemdTemplate, cxt.Domain, "/lib/systemd/system/mono-fastcgi.service")
 
 	if err != nil {
-		return fmt.Errorf("Failed to deploy Mono FastCGI service: %v", cxt.domain, err)
+		return fmt.Errorf("Failed to deploy Mono FastCGI service: %v", cxt.Domain, err)
 	}
 
 	fmt.Println("Mono FastCGI service unit file uploaded")
 
-	_, err = ssh.RunSudoCommands(cxt.Client, cxt.password, "sudo systemctl enable mono-fastcgi")
+	_, err = ssh.RunSudoCommands(cxt.Client, cxt.Password, "sudo systemctl enable mono-fastcgi")
 
 	if err != nil {
 		return fmt.Errorf("Unable to enable Mono FastCGI service: %v", err)
@@ -28,7 +28,7 @@ func (step installMonoFastCGIService) Execute(cxt context) error {
 
 	fmt.Println("Mono FastCGI service enabled")
 
-	_, err = ssh.RunSudoCommands(cxt.Client, cxt.password, "sudo systemctl start mono-fastcgi")
+	_, err = ssh.RunSudoCommands(cxt.Client, cxt.Password, "sudo systemctl start mono-fastcgi")
 
 	if err != nil {
 		return fmt.Errorf("Unable to start Mono FastCGI service: %v", err)
@@ -49,10 +49,10 @@ ExecStart=/usr/bin/fastcgi-mono-server4 --appconfigfile=/etc/xsp4/debian.webapp 
 [Install]
 WantedBy=multi-user.target`
 
-type addSiteToMonoFastCGIConfiguration struct {
+type AddSiteToMonoFastCGIConfiguration struct {
 }
 
-func (step addSiteToMonoFastCGIConfiguration) Execute(cxt context) error {
+func (step AddSiteToMonoFastCGIConfiguration) Execute(cxt Context) error {
 
 	file, err := ssh.ScpDownloadFile(cxt.Client, "/etc/xsp4/debian.webapp")
 
@@ -69,13 +69,13 @@ func (step addSiteToMonoFastCGIConfiguration) Execute(cxt context) error {
 	}
 
 	for _, app := range config.Apps {
-		if app.Name == cxt.domain {
+		if app.Name == cxt.Domain {
 			fmt.Println("Site found in Mono FastCGI configuration")
 			return nil
 		}
 	}
 
-	config.Apps = append(config.Apps, webApplication{cxt.domain, cxt.domain, 80, "/", "/var/www/" + cxt.domain, true})
+	config.Apps = append(config.Apps, webApplication{cxt.Domain, cxt.Domain, 80, "/", "/var/www/" + cxt.Domain, true})
 
 	data, err := xml.MarshalIndent(&config, "", "	")
 
@@ -83,7 +83,7 @@ func (step addSiteToMonoFastCGIConfiguration) Execute(cxt context) error {
 		return fmt.Errorf("Failed to generate xml for Mono FastCGI configuration: %v", err)
 	}
 
-	ssh.ScpUploadDataAsRoot(cxt.Client, string(data), "/etc/xsp4/debian.webapp", cxt.password)
+	ssh.ScpUploadDataAsRoot(cxt.Client, string(data), "/etc/xsp4/debian.webapp", cxt.Password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload Mono FastCGI configuration: %v", err)

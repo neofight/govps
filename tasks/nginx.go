@@ -1,4 +1,4 @@
-package main
+package tasks
 
 import (
 	"bufio"
@@ -8,26 +8,26 @@ import (
 	"github.com/neofight/govps/ssh"
 )
 
-type addNginxConfig struct {
+type AddNginxConfig struct {
 }
 
-func (step addNginxConfig) Execute(cxt context) error {
+func (step AddNginxConfig) Execute(cxt Context) error {
 
-	err := uploadTemplate(cxt, "nginx", nginxTemplate, cxt.domain, "/etc/nginx/sites-available/"+cxt.domain)
+	err := uploadTemplate(cxt, "nginx", nginxTemplate, cxt.Domain, "/etc/nginx/sites-available/"+cxt.Domain)
 
 	if err != nil {
-		return fmt.Errorf("Failed to deploy nginx configuration file for %v: %v", cxt.domain, err)
+		return fmt.Errorf("Failed to deploy nginx configuration file for %v: %v", cxt.Domain, err)
 	}
 
-	fmt.Printf("Nginx configuration file for %v uploaded\n", cxt.domain)
+	fmt.Printf("Nginx configuration file for %v uploaded\n", cxt.Domain)
 
 	return nil
 }
 
-type addNginxFastCGIParameters struct {
+type AddNginxFastCGIParameters struct {
 }
 
-func (step addNginxFastCGIParameters) Execute(cxt context) error {
+func (step AddNginxFastCGIParameters) Execute(cxt Context) error {
 
 	file, err := ssh.ScpDownloadFile(cxt.Client, "/etc/nginx/fastcgi_params")
 
@@ -71,7 +71,7 @@ func (step addNginxFastCGIParameters) Execute(cxt context) error {
 
 	if !pathInfoSet || !scriptFilenameSet {
 
-		err = ssh.ScpUploadDataAsRoot(cxt.Client, file, "/etc/nginx/fastcgi_params", cxt.password)
+		err = ssh.ScpUploadDataAsRoot(cxt.Client, file, "/etc/nginx/fastcgi_params", cxt.Password)
 
 		if err != nil {
 			return fmt.Errorf("Failed to update fastcgi_params: %v", err)
