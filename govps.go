@@ -14,6 +14,18 @@ func main() {
 	host := os.Args[1]
 	domain := os.Args[2]
 
+	pType, err := identifyProjectType()
+
+	if err != nil {
+		log.Fatal("Failed to identify a supported project type for deployment: ", err)
+	}
+
+	pipeline, err := createPipeline(pType)
+
+	if err != nil {
+		log.Fatal("Failed to create steps for deployment: ", err)
+	}
+
 	password, err := promptForPassword()
 
 	if err != nil {
@@ -27,15 +39,6 @@ func main() {
 	}
 
 	defer client.Close()
-
-	pipeline := []tasks.Task{
-		tasks.CreateMySQLDatabase{},
-		tasks.PublishMVC{},
-		tasks.AddSiteToMonoFastCGIConfiguration{},
-		tasks.InstallMonoFastCGIService{},
-		tasks.AddNginxFastCGIParameters{},
-		tasks.AddNginxConfig{},
-	}
 
 	err = tasks.ExecutePipeline(tasks.Context{client, password, domain}, pipeline)
 
