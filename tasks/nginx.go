@@ -8,22 +8,6 @@ import (
 	"github.com/neofight/govps/ssh"
 )
 
-type AddNginxConfig struct {
-}
-
-func (step AddNginxConfig) Execute(cxt Context) error {
-
-	err := uploadTemplate(cxt, "nginx", nginxTemplate, cxt.Domain, "/etc/nginx/sites-available/"+cxt.Domain)
-
-	if err != nil {
-		return fmt.Errorf("Failed to deploy nginx configuration file for %v: %v", cxt.Domain, err)
-	}
-
-	fmt.Printf("Nginx configuration file for %v uploaded\n", cxt.Domain)
-
-	return nil
-}
-
 type AddNginxFastCGIParameters struct {
 }
 
@@ -83,7 +67,28 @@ func (step AddNginxFastCGIParameters) Execute(cxt Context) error {
 	return nil
 }
 
-var nginxTemplate = `server {
+func uploadNginxConfig(cxt Context, name string, templateText string, domain string) error {
+
+	err := uploadTemplate(cxt, "nginx", templateText, cxt.Domain, "/etc/nginx/sites-available/"+cxt.Domain)
+
+	if err != nil {
+		return fmt.Errorf("Failed to deploy nginx configuration file for %v: %v", cxt.Domain, err)
+	}
+
+	fmt.Printf("Nginx configuration file for %v uploaded\n", cxt.Domain)
+
+	return nil
+}
+
+type UploadMvcNginxConfig struct {
+}
+
+func (step UploadMvcNginxConfig) Execute(cxt Context) error {
+
+	return uploadNginxConfig(cxt, "mvcNginx", mvcTemplate, cxt.Domain)
+}
+
+var mvcTemplate = `server {
         listen   80;
         server_name  {{.}};
         access_log   /var/log/nginx/{{.}}.access.log;
@@ -94,5 +99,25 @@ var nginxTemplate = `server {
                 fastcgi_index Home;
                 fastcgi_pass 127.0.0.1:9000;
                 include /etc/nginx/fastcgi_params;
+        }
+}`
+
+type UploadStaticNginxConfig struct {
+}
+
+func (step UploadStaticNginxConfig) Execute(cxt Context) error {
+
+	return uploadNginxConfig(cxt, "staticNginx", staticTemplate, cxt.Domain)
+}
+
+var staticTemplate = `server {
+        listen		80;
+        server_name	{{.}};
+        access_log	/var/log/nginx/{{.}}.access.log;
+        root		/var/www/{{.}}/;
+
+        location / {
+                index			index.html
+                error_page	404	/404.html;
         }
 }`
