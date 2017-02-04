@@ -11,7 +11,7 @@ import (
 type PublishMVC struct {
 }
 
-func (step PublishMVC) Execute(cxt Context) error {
+func (task PublishMVC) Execute(cxt Context) error {
 
 	return publish(cxt, func(path string, info os.FileInfo) bool {
 		if info.IsDir() {
@@ -45,7 +45,7 @@ func (step PublishMVC) Execute(cxt Context) error {
 type PublishStatic struct {
 }
 
-func (step PublishStatic) Execute(cxt Context) error {
+func (task PublishStatic) Execute(cxt Context) error {
 
 	return publish(cxt, func(path string, info os.FileInfo) bool {
 		return true

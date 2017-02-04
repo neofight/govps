@@ -10,7 +10,7 @@ import (
 type InstallMonoFastCGIService struct {
 }
 
-func (step InstallMonoFastCGIService) Execute(cxt Context) error {
+func (task InstallMonoFastCGIService) Execute(cxt Context) error {
 
 	err := uploadTemplate(cxt, "systemd", systemdTemplate, cxt.Domain, "/lib/systemd/system/mono-fastcgi.service")
 
@@ -52,7 +52,7 @@ WantedBy=multi-user.target`
 type AddSiteToMonoFastCGIConfiguration struct {
 }
 
-func (step AddSiteToMonoFastCGIConfiguration) Execute(cxt Context) error {
+func (task AddSiteToMonoFastCGIConfiguration) Execute(cxt Context) error {
 
 	file, err := ssh.ScpDownloadFile(cxt.Client, "/etc/xsp4/debian.webapp")
 

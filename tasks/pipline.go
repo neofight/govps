@@ -19,10 +19,10 @@ type Task interface {
 	Execute(cxt Context) error
 }
 
-func ExecutePipeline(cxt Context, steps []Task) error {
+func ExecutePipeline(cxt Context, tasks []Task) error {
 
-	for _, step := range steps {
-		err := step.Execute(cxt)
+	for _, task := range tasks {
+		err := task.Execute(cxt)
 
 		if err != nil {
 			return err

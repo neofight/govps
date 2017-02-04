@@ -11,7 +11,7 @@ import (
 type AddNginxFastCGIParameters struct {
 }
 
-func (step AddNginxFastCGIParameters) Execute(cxt Context) error {
+func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 
 	file, err := ssh.ScpDownloadFile(cxt.Client, "/etc/nginx/fastcgi_params")
 
@@ -83,7 +83,7 @@ func uploadNginxConfig(cxt Context, name string, templateText string, domain str
 type UploadMvcNginxConfig struct {
 }
 
-func (step UploadMvcNginxConfig) Execute(cxt Context) error {
+func (task UploadMvcNginxConfig) Execute(cxt Context) error {
 
 	return uploadNginxConfig(cxt, "mvcNginx", mvcTemplate, cxt.Domain)
 }
@@ -105,7 +105,7 @@ var mvcTemplate = `server {
 type UploadStaticNginxConfig struct {
 }
 
-func (step UploadStaticNginxConfig) Execute(cxt Context) error {
+func (task UploadStaticNginxConfig) Execute(cxt Context) error {
 
 	return uploadNginxConfig(cxt, "staticNginx", staticTemplate, cxt.Domain)
 }
@@ -125,7 +125,7 @@ var staticTemplate = `server {
 type EnableNginxSite struct {
 }
 
-func (step EnableNginxSite) Execute(cxt Context) error {
+func (task EnableNginxSite) Execute(cxt Context) error {
 
 	enableSite := fmt.Sprintf("ln -sf /etc/nginx/sites-available/%v /etc/nginx/sites-enabled/%v", cxt.Domain, cxt.Domain)
 

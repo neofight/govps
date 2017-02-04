@@ -23,7 +23,7 @@ func main() {
 	pipeline, err := createPipeline(pType)
 
 	if err != nil {
-		log.Fatal("Failed to create steps for deployment: ", err)
+		log.Fatal("Failed to create tasks for deployment: ", err)
 	}
 
 	password, err := promptForPassword()

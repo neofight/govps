@@ -28,7 +28,7 @@ type database struct {
 	Password string
 }
 
-func (step CreateMySQLDatabase) Execute(cxt Context) error {
+func (task CreateMySQLDatabase) Execute(cxt Context) error {
 
 	var db database
 
