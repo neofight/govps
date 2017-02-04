@@ -60,7 +60,7 @@ func publish(cxt Context, filter func(path string, info os.FileInfo) bool) error
 		return fmt.Errorf("Unable to create directory: %v", err)
 	}
 
-	err = cxt.VPS.ScpUploadAsRoot(".", deployPath, filter)
+	err = cxt.VPS.UploadFiles(".", deployPath, filter)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload website: %v", err)

@@ -22,17 +22,17 @@ func (server Server) RunSudoCommands(commands ...string) (string, error) {
 	return ssh.RunSudoCommands(server.client, server.password, commands...)
 }
 
-func (server Server) ScpDownloadFile(path string) (string, error) {
+func (server Server) DownloadFile(path string) (string, error) {
 
 	return ssh.ScpDownloadFile(server.client, path)
 }
 
-func (server Server) ScpUploadAsRoot(localPath string, remotePath string, filter func(path string, info os.FileInfo) bool) error {
+func (server Server) UploadFiles(localPath string, remotePath string, filter func(path string, info os.FileInfo) bool) error {
 
 	return ssh.ScpUploadAsRoot(server.client, localPath, remotePath, server.password, filter)
 }
 
-func (server Server) ScpUploadDataAsRoot(data string, filePath string) error {
+func (server Server) UploadData(data string, filePath string) error {
 
 	return ssh.ScpUploadDataAsRoot(server.client, data, filePath, server.password)
 }

@@ -11,7 +11,7 @@ type AddNginxFastCGIParameters struct {
 
 func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 
-	file, err := cxt.VPS.ScpDownloadFile("/etc/nginx/fastcgi_params")
+	file, err := cxt.VPS.DownloadFile("/etc/nginx/fastcgi_params")
 
 	if err != nil {
 		return fmt.Errorf("Failed to download file: %v", err)
@@ -53,7 +53,7 @@ func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 
 	if !pathInfoSet || !scriptFilenameSet {
 
-		err = cxt.VPS.ScpUploadDataAsRoot(file, "/etc/nginx/fastcgi_params")
+		err = cxt.VPS.UploadData(file, "/etc/nginx/fastcgi_params")
 
 		if err != nil {
 			return fmt.Errorf("Failed to update fastcgi_params: %v", err)

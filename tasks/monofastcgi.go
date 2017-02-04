@@ -52,7 +52,7 @@ type AddSiteToMonoFastCGIConfiguration struct {
 
 func (task AddSiteToMonoFastCGIConfiguration) Execute(cxt Context) error {
 
-	file, err := cxt.VPS.ScpDownloadFile("/etc/xsp4/debian.webapp")
+	file, err := cxt.VPS.DownloadFile("/etc/xsp4/debian.webapp")
 
 	if err != nil {
 		return fmt.Errorf("Failed to download Mono FastCGI configuration: %v", err)
@@ -81,7 +81,7 @@ func (task AddSiteToMonoFastCGIConfiguration) Execute(cxt Context) error {
 		return fmt.Errorf("Failed to generate xml for Mono FastCGI configuration: %v", err)
 	}
 
-	cxt.VPS.ScpUploadDataAsRoot(string(data), "/etc/xsp4/debian.webapp")
+	cxt.VPS.UploadData(string(data), "/etc/xsp4/debian.webapp")
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload Mono FastCGI configuration: %v", err)

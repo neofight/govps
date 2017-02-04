@@ -45,7 +45,7 @@ func uploadTemplate(cxt Context, templateName string, templateText string, templ
 		return fmt.Errorf("Failed to execute template: %v", err)
 	}
 
-	err = cxt.VPS.ScpUploadDataAsRoot(buffer.String(), remotePath)
+	err = cxt.VPS.UploadData(buffer.String(), remotePath)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload file: %v", err)

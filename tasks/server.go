@@ -7,7 +7,7 @@ import (
 type Server interface {
 	RunCommand(command string, inputs ...string) (string, error)
 	RunSudoCommands(commands ...string) (string, error)
-	ScpDownloadFile(path string) (string, error)
-	ScpUploadAsRoot(localPath string, remotePath string, filter func(path string, info os.FileInfo) bool) error
-	ScpUploadDataAsRoot(data string, filePath string) error
+	DownloadFile(path string) (string, error)
+	UploadFiles(localPath string, remotePath string, filter func(path string, info os.FileInfo) bool) error
+	UploadData(data string, filePath string) error
 }
