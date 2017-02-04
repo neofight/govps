@@ -3,8 +3,6 @@ package tasks
 import (
 	"encoding/xml"
 	"fmt"
-
-	"github.com/neofight/govps/ssh"
 )
 
 type InstallMonoFastCGIService struct {
@@ -20,7 +18,7 @@ func (task InstallMonoFastCGIService) Execute(cxt Context) error {
 
 	fmt.Println("Mono FastCGI service unit file uploaded")
 
-	_, err = ssh.RunSudoCommands(cxt.Client, cxt.Password, "sudo systemctl enable mono-fastcgi")
+	_, err = cxt.VPS.RunSudoCommands("systemctl enable mono-fastcgi")
 
 	if err != nil {
 		return fmt.Errorf("Unable to enable Mono FastCGI service: %v", err)
@@ -28,7 +26,7 @@ func (task InstallMonoFastCGIService) Execute(cxt Context) error {
 
 	fmt.Println("Mono FastCGI service enabled")
 
-	_, err = ssh.RunSudoCommands(cxt.Client, cxt.Password, "sudo systemctl start mono-fastcgi")
+	_, err = cxt.VPS.RunSudoCommands("systemctl start mono-fastcgi")
 
 	if err != nil {
 		return fmt.Errorf("Unable to start Mono FastCGI service: %v", err)
@@ -54,7 +52,7 @@ type AddSiteToMonoFastCGIConfiguration struct {
 
 func (task AddSiteToMonoFastCGIConfiguration) Execute(cxt Context) error {
 
-	file, err := ssh.ScpDownloadFile(cxt.Client, "/etc/xsp4/debian.webapp")
+	file, err := cxt.VPS.ScpDownloadFile("/etc/xsp4/debian.webapp")
 
 	if err != nil {
 		return fmt.Errorf("Failed to download Mono FastCGI configuration: %v", err)
@@ -83,7 +81,7 @@ func (task AddSiteToMonoFastCGIConfiguration) Execute(cxt Context) error {
 		return fmt.Errorf("Failed to generate xml for Mono FastCGI configuration: %v", err)
 	}
 
-	ssh.ScpUploadDataAsRoot(cxt.Client, string(data), "/etc/xsp4/debian.webapp", cxt.Password)
+	cxt.VPS.ScpUploadDataAsRoot(string(data), "/etc/xsp4/debian.webapp")
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload Mono FastCGI configuration: %v", err)

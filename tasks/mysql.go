@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/neofight/govps/ssh"
 )
 
 type CreateMySQLDatabase struct {
@@ -77,7 +75,7 @@ func (task CreateMySQLDatabase) Execute(cxt Context) error {
 	checkCommand := fmt.Sprintf("mysql -u root -p -BNe \"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%v'\"", db.Name)
 	password := fmt.Sprintf("%v\n", string(cxt.Password))
 
-	result, err := ssh.RunCommand(cxt.Client, cxt.Password, checkCommand, password)
+	result, err := cxt.VPS.RunCommand(checkCommand, password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to run query: %v", err)
@@ -92,7 +90,7 @@ func (task CreateMySQLDatabase) Execute(cxt Context) error {
 	grant := fmt.Sprintf("GRANT ALL ON %v.* TO '%v' IDENTIFIED BY '%v';\n", db.Name, db.User, db.Password)
 	quit := "QUIT\n"
 
-	_, err = ssh.RunCommand(cxt.Client, cxt.Password, "mysql -u root -p", password, create, grant, quit)
+	_, err = cxt.VPS.RunCommand("mysql -u root -p", password, create, grant, quit)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create database %v: %v", db.Name, err)

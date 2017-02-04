@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"strings"
-
-	"github.com/neofight/govps/ssh"
 )
 
 type AddNginxFastCGIParameters struct {
@@ -13,7 +11,7 @@ type AddNginxFastCGIParameters struct {
 
 func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 
-	file, err := ssh.ScpDownloadFile(cxt.Client, "/etc/nginx/fastcgi_params")
+	file, err := cxt.VPS.ScpDownloadFile("/etc/nginx/fastcgi_params")
 
 	if err != nil {
 		return fmt.Errorf("Failed to download file: %v", err)
@@ -55,7 +53,7 @@ func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 
 	if !pathInfoSet || !scriptFilenameSet {
 
-		err = ssh.ScpUploadDataAsRoot(cxt.Client, file, "/etc/nginx/fastcgi_params", cxt.Password)
+		err = cxt.VPS.ScpUploadDataAsRoot(file, "/etc/nginx/fastcgi_params")
 
 		if err != nil {
 			return fmt.Errorf("Failed to update fastcgi_params: %v", err)
@@ -131,7 +129,7 @@ func (task EnableNginxSite) Execute(cxt Context) error {
 
 	reloadConfig := "systemctl reload nginx"
 
-	_, err := ssh.RunSudoCommands(cxt.Client, cxt.Password, enableSite, reloadConfig)
+	_, err := cxt.VPS.RunSudoCommands(enableSite, reloadConfig)
 
 	if err != nil {
 		return fmt.Errorf("Failed to enable site: %v", err)

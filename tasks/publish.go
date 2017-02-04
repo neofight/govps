@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/neofight/govps/ssh"
 )
 
 type PublishMVC struct {
@@ -52,17 +50,17 @@ func (task PublishStatic) Execute(cxt Context) error {
 	})
 }
 
-func publish(cxt Context, filter ssh.FilterFunc) error {
+func publish(cxt Context, filter func(path string, info os.FileInfo) bool) error {
 
 	deployPath := "/var/www/" + cxt.Domain
 
-	_, err := ssh.RunSudoCommands(cxt.Client, cxt.Password, "rm -rf "+deployPath, "mkdir "+deployPath)
+	_, err := cxt.VPS.RunSudoCommands("rm -rf "+deployPath, "mkdir "+deployPath)
 
 	if err != nil {
 		return fmt.Errorf("Unable to create directory: %v", err)
 	}
 
-	err = ssh.ScpUploadAsRoot(cxt.Client, ".", deployPath, cxt.Password, filter)
+	err = cxt.VPS.ScpUploadAsRoot(".", deployPath, filter)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload website: %v", err)
