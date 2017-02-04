@@ -47,11 +47,13 @@ func createPipeline(pType projectType) ([]tasks.Task, error) {
 			tasks.InstallMonoFastCGIService{},
 			tasks.AddNginxFastCGIParameters{},
 			tasks.UploadMvcNginxConfig{},
+			tasks.EnableNginxSite{},
 		}, nil
 	case Static:
 		return []tasks.Task{
 			tasks.PublishStatic{},
 			tasks.UploadStaticNginxConfig{},
+			tasks.EnableNginxSite{},
 		}, nil
 	default:
 		return nil, fmt.Errorf("Project type %v is not supported", pType)

@@ -117,7 +117,27 @@ var staticTemplate = `server {
         root		/var/www/{{.}}/;
 
         location / {
-                index			index.html
+                index			index.html;
                 error_page	404	/404.html;
         }
 }`
+
+type EnableNginxSite struct {
+}
+
+func (step EnableNginxSite) Execute(cxt Context) error {
+
+	enableSite := fmt.Sprintf("ln -sf /etc/nginx/sites-available/%v /etc/nginx/sites-enabled/%v", cxt.Domain, cxt.Domain)
+
+	reloadConfig := "systemctl reload nginx"
+
+	_, err := ssh.RunSudoCommands(cxt.Client, cxt.Password, enableSite, reloadConfig)
+
+	if err != nil {
+		return fmt.Errorf("Failed to enable site: %v", err)
+	}
+
+	fmt.Println("Site enabled")
+
+	return nil
+}
