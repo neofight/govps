@@ -40,7 +40,7 @@ func main() {
 
 	defer client.Close()
 
-	err = tasks.ExecutePipeline(tasks.Context{client, password, domain}, pipeline)
+	err = tasks.ExecutePipeline(tasks.Context{Client: client, Password: password, Domain: domain}, pipeline)
 
 	if err != nil {
 		log.Fatal("Error executing deployment process: ", err)

@@ -15,7 +15,7 @@ func (step InstallMonoFastCGIService) Execute(cxt Context) error {
 	err := uploadTemplate(cxt, "systemd", systemdTemplate, cxt.Domain, "/lib/systemd/system/mono-fastcgi.service")
 
 	if err != nil {
-		return fmt.Errorf("Failed to deploy Mono FastCGI service: %v", cxt.Domain, err)
+		return fmt.Errorf("Failed to deploy Mono FastCGI service: %v", err)
 	}
 
 	fmt.Println("Mono FastCGI service unit file uploaded")
