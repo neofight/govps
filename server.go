@@ -29,10 +29,10 @@ func (server Server) DownloadFile(path string) (string, error) {
 
 func (server Server) UploadFiles(localPath string, remotePath string, filter func(path string, info os.FileInfo) bool) error {
 
-	return ssh.ScpUploadAsRoot(server.client, localPath, remotePath, server.password, filter)
+	return ssh.ScpUpload(server.client, localPath, remotePath, server.password, filter)
 }
 
 func (server Server) UploadData(data string, filePath string) error {
 
-	return ssh.ScpUploadDataAsRoot(server.client, data, filePath, server.password)
+	return ssh.ScpUploadData(server.client, data, filePath, server.password)
 }

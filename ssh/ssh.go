@@ -149,20 +149,7 @@ func ScpDownloadFile(client *ssh.Client, path string) (string, error) {
 	return result, nil
 }
 
-func ScpUploadDataAsUser(client *ssh.Client, data string, filePath string) error {
-
-	return scpUploadData(client, data, filePath, run)
-}
-
-func ScpUploadDataAsRoot(client *ssh.Client, data string, filePath string, password []byte) error {
-
-	return scpUploadData(client, data, filePath, func(client *ssh.Client, command string, inputs []string) (string, error) {
-
-		return runSudo(client, command, inputs, password)
-	})
-}
-
-func scpUploadData(client *ssh.Client, data string, filePath string, run func(*ssh.Client, string, []string) (string, error)) error {
+func ScpUploadData(client *ssh.Client, data string, filePath string, password []byte) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
@@ -174,7 +161,7 @@ func scpUploadData(client *ssh.Client, data string, filePath string, run func(*s
 	inputs[1] = fmt.Sprint(data)
 	inputs[2] = fmt.Sprint("\x00")
 
-	_, err := run(client, "scp -t "+filePath, inputs)
+	_, err := runSudo(client, "scp -t "+filePath, inputs, password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to upload to %v: %v", filePath, err)
@@ -185,20 +172,7 @@ func scpUploadData(client *ssh.Client, data string, filePath string, run func(*s
 
 type FilterFunc func(path string, info os.FileInfo) bool
 
-func ScpUploadAsUser(client *ssh.Client, localPath string, remotePath string, filter FilterFunc) error {
-
-	return scpUpload(client, localPath, remotePath, filter, run)
-}
-
-func ScpUploadAsRoot(client *ssh.Client, localPath string, remotePath string, password []byte, filter FilterFunc) error {
-
-	return scpUpload(client, localPath, remotePath, filter, func(client *ssh.Client, command string, inputs []string) (string, error) {
-
-		return runSudo(client, command, inputs, password)
-	})
-}
-
-func scpUpload(client *ssh.Client, localPath string, remotePath string, filter FilterFunc, run func(*ssh.Client, string, []string) (string, error)) error {
+func ScpUpload(client *ssh.Client, localPath string, remotePath string, password []byte, filter FilterFunc) error {
 
 	// Ref: https://blogs.oracle.com/janp/entry/how_the_scp_protocol_works
 
@@ -238,7 +212,7 @@ func scpUpload(client *ssh.Client, localPath string, remotePath string, filter F
 		return nil
 	})
 
-	_, err := run(client, "scp -tr "+remotePath, inputs)
+	_, err := runSudo(client, "scp -tr "+remotePath, inputs, password)
 
 	if err != nil {
 		return fmt.Errorf("Failed to complete upload: %v", err)
