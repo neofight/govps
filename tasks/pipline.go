@@ -7,9 +7,8 @@ import (
 )
 
 type Context struct {
-	VPS      Server
-	Password []byte
-	Domain   string
+	VPS    Server
+	Domain string
 }
 
 type Task interface {

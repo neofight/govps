@@ -40,8 +40,14 @@ func identifyProjectType() (projectType, error) {
 func createPipeline(pType projectType) ([]tasks.Task, error) {
 	switch pType {
 	case Mvc:
+		mySQLPassword, err := promptForPassword("MySql")
+
+		if err != nil {
+			fmt.Errorf("Failed to read password: ", err)
+		}
+
 		return []tasks.Task{
-			tasks.CreateMySQLDatabase{},
+			tasks.CreateMySQLDatabase{MySQLPassword: mySQLPassword},
 			tasks.PublishMVC{},
 			tasks.AddSiteToMonoFastCGIConfiguration{},
 			tasks.InstallMonoFastCGIService{},

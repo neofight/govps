@@ -8,6 +8,7 @@ import (
 )
 
 type CreateMySQLDatabase struct {
+	MySQLPassword []byte
 }
 
 type connectionStrings struct {
@@ -73,7 +74,7 @@ func (task CreateMySQLDatabase) Execute(cxt Context) error {
 	}
 
 	checkCommand := fmt.Sprintf("mysql -u root -p -BNe \"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%v'\"", db.Name)
-	password := fmt.Sprintf("%v\n", string(cxt.Password))
+	password := fmt.Sprintf("%v\n", string(task.MySQLPassword))
 
 	result, err := cxt.VPS.RunCommand(checkCommand, password)
 

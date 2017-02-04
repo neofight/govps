@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/neofight/govps/ssh"
 	"github.com/neofight/govps/tasks"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 func main() {
@@ -20,16 +18,16 @@ func main() {
 		log.Fatal("Failed to identify a supported project type for deployment: ", err)
 	}
 
+	password, err := promptForPassword("server")
+
+	if err != nil {
+		log.Fatal("Unable to read password: ", err)
+	}
+
 	pipeline, err := createPipeline(pType)
 
 	if err != nil {
 		log.Fatal("Failed to create tasks for deployment: ", err)
-	}
-
-	password, err := promptForPassword()
-
-	if err != nil {
-		log.Fatal("Unable to read password: ", err)
 	}
 
 	client, err := ssh.CreateSSHClient(host, password)
@@ -42,18 +40,9 @@ func main() {
 
 	vps := Server{client: client, password: password}
 
-	err = tasks.ExecutePipeline(tasks.Context{VPS: vps, Password: password, Domain: domain}, pipeline)
+	err = tasks.ExecutePipeline(tasks.Context{VPS: vps, Domain: domain}, pipeline)
 
 	if err != nil {
 		log.Fatal("Error executing deployment process: ", err)
 	}
-}
-
-func promptForPassword() ([]byte, error) {
-
-	fmt.Print("Enter password:")
-	password, err := terminal.ReadPassword(0)
-	fmt.Println()
-
-	return password, err
 }
