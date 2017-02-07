@@ -43,7 +43,7 @@ func createPipeline(pType projectType) ([]tasks.Task, error) {
 		mySQLPassword, err := promptForPassword("MySql")
 
 		if err != nil {
-			fmt.Errorf("Failed to read password: ", err)
+			return nil, fmt.Errorf("Failed to read password: %v", err)
 		}
 
 		return []tasks.Task{
