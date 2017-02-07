@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -34,7 +35,7 @@ func identifyProjectType() (projectType, error) {
 		}
 	}
 
-	return Unknown, fmt.Errorf("Failed to identify project type")
+	return Unknown, errors.New("Failed to identify project type")
 }
 
 func createPipeline(pType projectType) ([]tasks.Task, error) {

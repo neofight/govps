@@ -66,7 +66,7 @@ func TestStackPushAndPop(t *testing.T) {
 		popped := s.Pop()
 
 		if popped != expected {
-			t.Error("Expected to pop value %v but saw value %v", expected, popped)
+			t.Errorf("Expected to pop value %v but saw value %v", expected, popped)
 		}
 	}
 }
