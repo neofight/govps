@@ -14,7 +14,7 @@ type Server struct {
 
 func (server Server) RunCommand(command string, inputs ...string) (string, error) {
 
-	return ssh.RunCommand(server.client, server.password, command, inputs...)
+	return ssh.RunCommand(server.client, command, inputs...)
 }
 
 func (server Server) RunSudoCommands(commands ...string) (string, error) {

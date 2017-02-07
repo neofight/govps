@@ -255,7 +255,7 @@ func RunSudoCommands(client *ssh.Client, password []byte, commands ...string) (s
 	return runSudo(client, command, []string{}, password)
 }
 
-func RunCommand(client *ssh.Client, password []byte, command string, inputs ...string) (string, error) {
+func RunCommand(client *ssh.Client, command string, inputs ...string) (string, error) {
 
 	return run(client, command, inputs)
 }
