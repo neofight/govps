@@ -9,8 +9,12 @@ import (
 )
 
 func main() {
-	host := os.Args[1]
-	domain := os.Args[2]
+
+	args, ok := parse(os.Args)
+
+	if !ok {
+		return;
+	}
 
 	pType, err := identifyProjectType()
 
@@ -30,7 +34,7 @@ func main() {
 		log.Fatal("Failed to create tasks for deployment: ", err)
 	}
 
-	client, err := ssh.CreateSSHClient(host, password)
+	client, err := ssh.CreateSSHClient(args.host, password)
 
 	if err != nil {
 		log.Fatal("Error creating SSH client: ", err)
@@ -40,7 +44,7 @@ func main() {
 
 	vps := Server{client: client, password: password}
 
-	err = tasks.ExecutePipeline(tasks.Context{VPS: vps, Domain: domain}, pipeline)
+	err = tasks.ExecutePipeline(tasks.Context{VPS: vps, Domain: args.domain}, pipeline)
 
 	if err != nil {
 		log.Fatal("Error executing deployment process: ", err)
