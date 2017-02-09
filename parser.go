@@ -2,12 +2,18 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"regexp"
 	"strings"
 )
 
-type arguments struct  {
-	host string
+var stdOut io.Writer = os.Stdout
+
+const usage string = "Usage: govps <host> <domain>"
+
+type arguments struct {
+	host   string
 	domain string
 }
 
@@ -27,18 +33,18 @@ func parse(args []string) (parsed arguments, ok bool) {
 	}
 
 	return arguments{
-		 host: host,
-		 domain: domain,
+		host:   host,
+		domain: domain,
 	}, true
 }
 
 func isArgumentValid(argument string) bool {
 
-	match, _ := regexp.MatchString("^[A-Za-z0-9\\.\\-]+$", argument)
+	match, _ := regexp.MatchString("^[A-Za-z0-9.\\-]+$", argument)
 
 	return match
 }
 
 func printUsage() {
-	fmt.Println("Usage: govps <host> <domain>")
+	fmt.Fprintln(stdOut, usage)
 }
