@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"path/filepath"
 
 	"github.com/neofight/govps/tasks"
@@ -19,7 +18,7 @@ const (
 
 func identifyProjectType() (projectType, error) {
 
-	files, err := ioutil.ReadDir(".")
+	files, err := fs.ReadDir(".")
 
 	if err != nil {
 		return Unknown, fmt.Errorf("Failed to read current directory: %v", err)
