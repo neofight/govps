@@ -49,8 +49,8 @@ func createPipeline(pType projectType) ([]tasks.Task, error) {
 		return []tasks.Task{
 			tasks.CreateMySQLDatabase{MySQLPassword: mySQLPassword},
 			tasks.PublishMVC{},
-			tasks.AddSiteToMonoFastCGIConfiguration{},
-			tasks.InstallMonoFastCGIService{},
+			tasks.ConfigureMonoSite{},
+			tasks.InstallMono{},
 			tasks.AddNginxFastCGIParameters{},
 			tasks.UploadMvcNginxConfig{},
 			tasks.EnableNginxSite{},

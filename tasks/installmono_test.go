@@ -21,7 +21,7 @@ func executeInstallMonoFastCGIService(server Server) error {
 
 	cxt := Context{server, "test.com"}
 
-	var task InstallMonoFastCGIService
+	var task InstallMono
 
 	return task.Execute(cxt)
 }
@@ -70,7 +70,7 @@ func TestInstallMonoFastCGIServiceStartService(t *testing.T) {
 		t.Error("Expected service to be enabled without error but it was not")
 	}
 
-	if !contains(server.SudoCommandsRun, startMonoServiceComannd) {
+	if !contains(server.SudoCommandsRun, startMonoServiceCommand) {
 		t.Error("Expected service to be started but it was not")
 	}
 }
