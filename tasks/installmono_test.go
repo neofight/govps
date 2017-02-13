@@ -28,9 +28,9 @@ func executeInstallMonoFastCGIService(server Server) error {
 
 func TestInstallMonoFastCGIServiceUnitFile(t *testing.T) {
 
-	var server mock.Server
+	server := mock.NewServer()
 
-	err := executeInstallMonoFastCGIService(&server)
+	err := executeInstallMonoFastCGIService(server)
 
 	if err != nil {
 		t.Error("Expected unit file to be uploaded without error but it was not")
@@ -47,9 +47,9 @@ func TestInstallMonoFastCGIServiceUnitFile(t *testing.T) {
 
 func TestInstallMonoFastCGIServiceEnableService(t *testing.T) {
 
-	var server mock.Server
+	server := mock.NewServer()
 
-	err := executeInstallMonoFastCGIService(&server)
+	err := executeInstallMonoFastCGIService(server)
 
 	if err != nil {
 		t.Error("Expected service to be enabled without error but it was not")
@@ -62,9 +62,9 @@ func TestInstallMonoFastCGIServiceEnableService(t *testing.T) {
 
 func TestInstallMonoFastCGIServiceStartService(t *testing.T) {
 
-	var server mock.Server
+	server := mock.NewServer()
 
-	err := executeInstallMonoFastCGIService(&server)
+	err := executeInstallMonoFastCGIService(server)
 
 	if err != nil {
 		t.Error("Expected service to be enabled without error but it was not")
