@@ -1,4 +1,4 @@
-package main
+package io
 
 import (
 	"io/ioutil"
@@ -16,4 +16,4 @@ func (realFileSystem) ReadDir(dirname string) ([]os.FileInfo, error) {
 	return ioutil.ReadDir(dirname)
 }
 
-var fs fileSystem = realFileSystem{}
+var FileSystem fileSystem = realFileSystem{}

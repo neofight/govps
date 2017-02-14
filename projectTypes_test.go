@@ -4,12 +4,13 @@ import (
 	"os"
 	"testing"
 
+	"github.com/neofight/govps/io"
 	"github.com/neofight/govps/mock"
 )
 
 func setupMockFile(file string) {
 
-	fs = mock.FileSystem{
+	io.FileSystem = mock.FileSystem{
 		[]os.FileInfo{mock.FileInfo{FileName: file}},
 	}
 }
@@ -61,7 +62,7 @@ func TestIdentifyProjectTypeUnknown(t *testing.T) {
 
 func TestIdentifyProjectTypeDirectoryError(t *testing.T) {
 
-	fs = mock.FileSystem{}
+	io.FileSystem = mock.FileSystem{}
 
 	pType, err := identifyProjectType()
 
@@ -76,7 +77,7 @@ func TestIdentifyProjectTypeDirectoryError(t *testing.T) {
 
 func TestCreatePipelineMvcErrorReadingPassword(t *testing.T) {
 
-	term = mock.Terminal{}
+	io.Terminal = mock.Terminal{}
 
 	pipeline, err := createPipeline(Mvc)
 
@@ -91,7 +92,7 @@ func TestCreatePipelineMvcErrorReadingPassword(t *testing.T) {
 
 func TestCreatePipelineMvcHappyPath(t *testing.T) {
 
-	term = mock.Terminal{"password"}
+	io.Terminal = mock.Terminal{"password"}
 
 	pipeline, err := createPipeline(Mvc)
 

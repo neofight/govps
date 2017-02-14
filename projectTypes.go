@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/neofight/govps/io"
 	"github.com/neofight/govps/tasks"
 )
 
@@ -18,7 +19,7 @@ const (
 
 func identifyProjectType() (projectType, error) {
 
-	files, err := fs.ReadDir(".")
+	files, err := io.FileSystem.ReadDir(".")
 
 	if err != nil {
 		return Unknown, fmt.Errorf("Failed to read current directory: %v", err)

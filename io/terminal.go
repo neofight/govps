@@ -1,4 +1,4 @@
-package main
+package io
 
 import (
 	sshTerminal "golang.org/x/crypto/ssh/terminal"
@@ -15,4 +15,4 @@ func (realTerminal) ReadPassword(fd int) ([]byte, error) {
 	return sshTerminal.ReadPassword(fd)
 }
 
-var term terminal = realTerminal{}
+var Terminal terminal = realTerminal{}
