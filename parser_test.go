@@ -3,12 +3,14 @@ package main
 import (
 	"bytes"
 	"testing"
+
+	"github.com/neofight/govps/io"
 )
 
 func TestParserInsufficientArguments(t *testing.T) {
 
 	buffer := &bytes.Buffer{}
-	stdOut = buffer
+	io.StdOut = buffer
 
 	_, ok := parse([]string{"govps", "one"})
 
@@ -24,7 +26,7 @@ func TestParserInsufficientArguments(t *testing.T) {
 func TestParserExcessiveArguments(t *testing.T) {
 
 	buffer := &bytes.Buffer{}
-	stdOut = buffer
+	io.StdOut = buffer
 
 	_, ok := parse([]string{"govps", "one", "two", "three"})
 
@@ -46,7 +48,7 @@ var illegalCharacters = []string{";", "'", "\"", "\r", "\n", "`"}
 func TestParserIllegalCharactersInHost(t *testing.T) {
 
 	buffer := &bytes.Buffer{}
-	stdOut = buffer
+	io.StdOut = buffer
 
 	for _, character := range illegalCharacters {
 
@@ -67,7 +69,7 @@ func TestParserIllegalCharactersInHost(t *testing.T) {
 func TestParserIllegalCharactersInDomain(t *testing.T) {
 
 	buffer := &bytes.Buffer{}
-	stdOut = buffer
+	io.StdOut = buffer
 
 	for _, character := range illegalCharacters {
 
@@ -88,7 +90,7 @@ func TestParserIllegalCharactersInDomain(t *testing.T) {
 func TestParserHappyPath(t *testing.T) {
 
 	buffer := &bytes.Buffer{}
-	stdOut = buffer
+	io.StdOut = buffer
 
 	result, ok := parse([]string{"govps", "host.com", "domain.com"})
 

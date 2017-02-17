@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"os"
 	"regexp"
 	"strings"
-)
 
-var stdOut io.Writer = os.Stdout
+	"github.com/neofight/govps/io"
+)
 
 const usage string = "Usage: govps <host> <domain>"
 
@@ -46,5 +44,5 @@ func isArgumentValid(argument string) bool {
 }
 
 func printUsage() {
-	fmt.Fprintln(stdOut, usage)
+	fmt.Fprintln(io.StdOut, usage)
 }
