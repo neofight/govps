@@ -6,21 +6,37 @@ import (
 	"os"
 )
 
+type Command struct {
+	Command string
+	Inputs  []string
+}
+
 type Server struct {
 	Files map[string]string
 
 	UploadedData string
 	UploadedPath string
 
+	CommandsRun     []Command
 	SudoCommandsRun []string
+
+	Responses map[string]string
 }
 
 func NewServer() *Server {
-	return &Server{Files: make(map[string]string)}
+	return &Server{
+		Files:     make(map[string]string),
+		Responses: make(map[string]string),
+	}
 }
 
 func (s *Server) RunCommand(command string, inputs ...string) (string, error) {
-	return "", nil
+
+	s.CommandsRun = append(s.CommandsRun, Command{command, inputs})
+
+	response := s.Responses[command]
+
+	return response, nil
 }
 
 func (s *Server) RunSudoCommands(commands ...string) (string, error) {

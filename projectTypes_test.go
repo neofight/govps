@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"testing"
 
 	"github.com/neofight/govps/io"
@@ -10,9 +9,11 @@ import (
 
 func setupMockFile(file string) {
 
-	io.FileSystem = mock.FileSystem{
-		[]os.FileInfo{mock.FileInfo{FileName: file}},
-	}
+	mockFS := mock.NewFileSystem()
+
+	mockFS.DirectoryEntries = append(mockFS.DirectoryEntries, mock.FileInfo{FileName: file})
+
+	io.FileSystem = mockFS
 }
 
 func TestIdentifyProjectTypeMvc(t *testing.T) {
