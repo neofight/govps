@@ -65,6 +65,11 @@ func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 	return nil
 }
 
+const fastcgiParamsPath = "/etc/nginx/fastcgi_params"
+
+const pathInfoParameter = "\nfastcgi_param  PATH_INFO          \"\";"
+const scriptFilenameParameter = "\nfastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;"
+
 func uploadNginxConfig(cxt Context, name string, templateText string) error {
 
 	err := uploadTemplate(cxt, name, templateText, cxt.Domain, "/etc/nginx/sites-available/"+cxt.Domain)
@@ -77,11 +82,6 @@ func uploadNginxConfig(cxt Context, name string, templateText string) error {
 
 	return nil
 }
-
-const fastcgiParamsPath = "/etc/nginx/fastcgi_params"
-
-const pathInfoParameter = "\nfastcgi_param  PATH_INFO          \"\";"
-const scriptFilenameParameter = "\nfastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;"
 
 type UploadMvcNginxConfig struct {
 }
