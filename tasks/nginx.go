@@ -130,9 +130,9 @@ type EnableNginxSite struct {
 
 func (task EnableNginxSite) Execute(cxt Context) error {
 
-	enableSite := fmt.Sprintf("ln -sf /etc/nginx/sites-available/%v /etc/nginx/sites-enabled/%v", cxt.Domain, cxt.Domain)
+	enableSite := fmt.Sprintf(enableSiteCommand, cxt.Domain, cxt.Domain)
 
-	reloadConfig := "systemctl reload nginx"
+	reloadConfig := reloadConfigCommand
 
 	_, err := cxt.VPS.RunSudoCommands(enableSite, reloadConfig)
 
@@ -146,3 +146,5 @@ func (task EnableNginxSite) Execute(cxt Context) error {
 }
 
 const sitesAvailablePath = "/etc/nginx/sites-available/"
+const enableSiteCommand = "ln -sf /etc/nginx/sites-available/%v /etc/nginx/sites-enabled/%v"
+const reloadConfigCommand = "systemctl reload nginx"

@@ -1,9 +1,9 @@
 package tasks
 
 import (
+	"fmt"
 	"testing"
 
-	"fmt"
 	"github.com/neofight/govps/io"
 	"github.com/neofight/govps/mock"
 )

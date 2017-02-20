@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"fmt"
 	"github.com/neofight/govps/mock"
 )
 
@@ -151,5 +152,48 @@ func TestUploadStaticNginxConfig(t *testing.T) {
 
 	if server.UploadedData != testStaticNginxConfiguration {
 		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testStaticNginxConfiguration, server.UploadedData)
+	}
+}
+
+func positionOfCommand(server *mock.Server, command string) (index int, ok bool) {
+
+	for i, runCommand := range server.SudoCommandsRun {
+
+		if runCommand == command {
+			return i, true
+		}
+	}
+
+	return 0, false
+}
+
+func TestEnableNginxSite(t *testing.T) {
+
+	server := mock.NewServer()
+
+	cxt := Context{server, "test.com"}
+
+	var task = EnableNginxSite{}
+
+	err := task.Execute(cxt)
+
+	if err != nil {
+		t.Error("Expected Nginx site to be enabled without error but it was not")
+	}
+
+	enablePosition, ok := positionOfCommand(server, fmt.Sprintf(enableSiteCommand, "test.com", "test.com"))
+
+	if !ok {
+		t.Error("Expected site to be enabled but it was not")
+	}
+
+	reloadPosition, ok := positionOfCommand(server, reloadConfigCommand)
+
+	if !ok {
+		t.Error("Expected Nginx configuration to be reloaded but it was not")
+	}
+
+	if enablePosition > reloadPosition {
+		t.Error("The Nginx configuration was reloaded before the site was enabled")
 	}
 }
