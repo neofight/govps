@@ -11,7 +11,7 @@ type AddNginxFastCGIParameters struct {
 
 func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 
-	file, err := cxt.VPS.DownloadFile("/etc/nginx/fastcgi_params")
+	file, err := cxt.VPS.DownloadFile(fastcgiParamsPath)
 
 	if err != nil {
 		return fmt.Errorf("Failed to download file: %v", err)
@@ -38,14 +38,14 @@ func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 	successMessage := ""
 
 	if !pathInfoSet {
-		file += "\nfastcgi_param  PATH_INFO          \"\";"
+		file += pathInfoParameter
 		successMessage += "Added PATH_INFO to fastcgi_params\n"
 	} else {
 		successMessage += "PATH_INFO already present in fastcgi_params\n"
 	}
 
 	if !scriptFilenameSet {
-		file += "\nfastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;"
+		file += scriptFilenameParameter
 		successMessage += "Added SCRIPT_FILENAME to fastcgi_params\n"
 	} else {
 		successMessage += "SCRIPT_FILENAME already present in fastcgi_params\n"
@@ -77,6 +77,11 @@ func uploadNginxConfig(cxt Context, name string, templateText string) error {
 
 	return nil
 }
+
+const fastcgiParamsPath = "/etc/nginx/fastcgi_params"
+
+const pathInfoParameter = "\nfastcgi_param  PATH_INFO          \"\";"
+const scriptFilenameParameter = "\nfastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;"
 
 type UploadMvcNginxConfig struct {
 }
