@@ -81,3 +81,75 @@ func TestExistingNginxFastCGIParameters(t *testing.T) {
 		t.Errorf("Expected the configuration file not to be uploaded but it was")
 	}
 }
+
+const testMvcNginxConfiguration = `server {
+        listen   80;
+        server_name  test.com;
+        access_log   /var/log/nginx/test.com.access.log;
+        root /var/www/test.com/;
+
+        location / {
+                index index.html index.htm default.aspx Default.aspx;
+                fastcgi_index Home;
+                fastcgi_pass 127.0.0.1:9000;
+                include /etc/nginx/fastcgi_params;
+        }
+}`
+
+func TestUploadMvcNginxConfig(t *testing.T) {
+
+	server := mock.NewServer()
+
+	cxt := Context{server, "test.com"}
+
+	var task = UploadMvcNginxConfig{}
+
+	err := task.Execute(cxt)
+
+	if err != nil {
+		t.Error("Expected MVC Nginx Config to uploaded without error but it was not")
+	}
+
+	if server.UploadedPath != sitesAvailablePath+"test.com" {
+		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", sitesAvailablePath, server.UploadedPath)
+	}
+
+	if server.UploadedData != testMvcNginxConfiguration {
+		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testMvcNginxConfiguration, server.UploadedData)
+	}
+}
+
+const testStaticNginxConfiguration = `server {
+        listen		80;
+        server_name	test.com;
+        access_log	/var/log/nginx/test.com.access.log;
+        root		/var/www/test.com/;
+
+        location / {
+                index			index.html;
+                error_page	404	/404.html;
+        }
+}`
+
+func TestUploadStaticNginxConfig(t *testing.T) {
+
+	server := mock.NewServer()
+
+	cxt := Context{server, "test.com"}
+
+	var task = UploadStaticNginxConfig{}
+
+	err := task.Execute(cxt)
+
+	if err != nil {
+		t.Error("Expected Static Nginx Config to uploaded without error but it was not")
+	}
+
+	if server.UploadedPath != sitesAvailablePath+"test.com" {
+		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", sitesAvailablePath, server.UploadedPath)
+	}
+
+	if server.UploadedData != testStaticNginxConfiguration {
+		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testStaticNginxConfiguration, server.UploadedData)
+	}
+}

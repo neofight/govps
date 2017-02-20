@@ -72,7 +72,7 @@ const scriptFilenameParameter = "\nfastcgi_param  SCRIPT_FILENAME    $document_r
 
 func uploadNginxConfig(cxt Context, name string, templateText string) error {
 
-	err := uploadTemplate(cxt, name, templateText, cxt.Domain, "/etc/nginx/sites-available/"+cxt.Domain)
+	err := uploadTemplate(cxt, name, templateText, cxt.Domain, sitesAvailablePath+cxt.Domain)
 
 	if err != nil {
 		return fmt.Errorf("Failed to deploy nginx configuration file for %v: %v", cxt.Domain, err)
@@ -144,3 +144,5 @@ func (task EnableNginxSite) Execute(cxt Context) error {
 
 	return nil
 }
+
+const sitesAvailablePath = "/etc/nginx/sites-available/"
