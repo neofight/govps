@@ -1,12 +1,14 @@
-package stack
+package stack_test
 
 import (
 	"strconv"
 	"testing"
+
+	"github.com/neofight/govps/stack"
 )
 
 func TestEmptyStackCount(t *testing.T) {
-	var s Stack
+	var s stack.Stack
 
 	if s.Count() != 0 {
 		t.Error("Expected empty stack to have a count of 0")
@@ -14,7 +16,7 @@ func TestEmptyStackCount(t *testing.T) {
 }
 
 func TestEmptyStackPeep(t *testing.T) {
-	var s Stack
+	var s stack.Stack
 
 	if s.Peep() != "" {
 		t.Error("Expected peep of empty stack to return an empty string")
@@ -22,7 +24,7 @@ func TestEmptyStackPeep(t *testing.T) {
 }
 
 func TestEmptyStackPop(t *testing.T) {
-	var s Stack
+	var s stack.Stack
 
 	if s.Pop() != "" {
 		t.Error("Expected pop of empty stack to return an empty string")
@@ -30,7 +32,7 @@ func TestEmptyStackPop(t *testing.T) {
 }
 
 func TestStackPushAndCount(t *testing.T) {
-	var s Stack
+	var s stack.Stack
 
 	for i := 0; i < 10; i++ {
 		s.Push(strconv.Itoa(i))
@@ -42,7 +44,7 @@ func TestStackPushAndCount(t *testing.T) {
 }
 
 func TestStackPushAndPeep(t *testing.T) {
-	var s Stack
+	var s stack.Stack
 
 	for i := 0; i < 10; i++ {
 		s.Push(strconv.Itoa(i))
@@ -54,7 +56,7 @@ func TestStackPushAndPeep(t *testing.T) {
 }
 
 func TestStackPushAndPop(t *testing.T) {
-	var s Stack
+	var s stack.Stack
 
 	for i := 0; i < 10; i++ {
 		s.Push(strconv.Itoa(i))

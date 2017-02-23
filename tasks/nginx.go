@@ -11,7 +11,7 @@ type AddNginxFastCGIParameters struct {
 
 func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 
-	file, err := cxt.VPS.DownloadFile(fastcgiParamsPath)
+	file, err := cxt.VPS.DownloadFile(FastcgiParamsPath)
 
 	if err != nil {
 		return fmt.Errorf("Failed to download file: %v", err)
@@ -38,14 +38,14 @@ func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 	successMessage := ""
 
 	if !pathInfoSet {
-		file += pathInfoParameter
+		file += PathInfoParameter
 		successMessage += "Added PATH_INFO to fastcgi_params\n"
 	} else {
 		successMessage += "PATH_INFO already present in fastcgi_params\n"
 	}
 
 	if !scriptFilenameSet {
-		file += scriptFilenameParameter
+		file += ScriptFilenameParameter
 		successMessage += "Added SCRIPT_FILENAME to fastcgi_params\n"
 	} else {
 		successMessage += "SCRIPT_FILENAME already present in fastcgi_params\n"
@@ -65,14 +65,14 @@ func (task AddNginxFastCGIParameters) Execute(cxt Context) error {
 	return nil
 }
 
-const fastcgiParamsPath = "/etc/nginx/fastcgi_params"
+const FastcgiParamsPath = "/etc/nginx/fastcgi_params"
 
-const pathInfoParameter = "\nfastcgi_param  PATH_INFO          \"\";"
-const scriptFilenameParameter = "\nfastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;"
+const PathInfoParameter = "\nfastcgi_param  PATH_INFO          \"\";"
+const ScriptFilenameParameter = "\nfastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;"
 
 func uploadNginxConfig(cxt Context, name string, templateText string) error {
 
-	err := uploadTemplate(cxt, name, templateText, cxt.Domain, sitesAvailablePath+cxt.Domain)
+	err := uploadTemplate(cxt, name, templateText, cxt.Domain, SitesAvailablePath+cxt.Domain)
 
 	if err != nil {
 		return fmt.Errorf("Failed to deploy nginx configuration file for %v: %v", cxt.Domain, err)
@@ -130,9 +130,9 @@ type EnableNginxSite struct {
 
 func (task EnableNginxSite) Execute(cxt Context) error {
 
-	enableSite := fmt.Sprintf(enableSiteCommand, cxt.Domain, cxt.Domain)
+	enableSite := fmt.Sprintf(EnableSiteCommand, cxt.Domain, cxt.Domain)
 
-	reloadConfig := reloadConfigCommand
+	reloadConfig := ReloadConfigCommand
 
 	_, err := cxt.VPS.RunSudoCommands(enableSite, reloadConfig)
 
@@ -145,6 +145,6 @@ func (task EnableNginxSite) Execute(cxt Context) error {
 	return nil
 }
 
-const sitesAvailablePath = "/etc/nginx/sites-available/"
-const enableSiteCommand = "ln -sf /etc/nginx/sites-available/%v /etc/nginx/sites-enabled/%v"
-const reloadConfigCommand = "systemctl reload nginx"
+const SitesAvailablePath = "/etc/nginx/sites-available/"
+const EnableSiteCommand = "ln -sf /etc/nginx/sites-available/%v /etc/nginx/sites-enabled/%v"
+const ReloadConfigCommand = "systemctl reload nginx"

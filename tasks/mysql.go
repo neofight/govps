@@ -74,7 +74,7 @@ func (task CreateMySQLDatabase) Execute(cxt Context) error {
 		}
 	}
 
-	checkCommand := fmt.Sprintf(checkDatabaseExistsCommand, db.Name)
+	checkCommand := fmt.Sprintf(CheckDatabaseExistsCommand, db.Name)
 	password := fmt.Sprintf("%v\n", string(task.MySQLPassword))
 
 	result, err := cxt.VPS.RunCommand(checkCommand, password)
@@ -88,11 +88,11 @@ func (task CreateMySQLDatabase) Execute(cxt Context) error {
 		return nil
 	}
 
-	create := fmt.Sprintf(createDatabaseCommand, db.Name)
+	create := fmt.Sprintf(CreateDatabaseCommand, db.Name)
 	grant := fmt.Sprintf("GRANT ALL ON %v.* TO '%v' IDENTIFIED BY '%v';\n", db.Name, db.User, db.Password)
 	quit := "QUIT\n"
 
-	_, err = cxt.VPS.RunCommand(mysqlCommand, password, create, grant, quit)
+	_, err = cxt.VPS.RunCommand(MysqlCommand, password, create, grant, quit)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create database %v: %v", db.Name, err)
@@ -103,6 +103,6 @@ func (task CreateMySQLDatabase) Execute(cxt Context) error {
 	return nil
 }
 
-const checkDatabaseExistsCommand = "mysql -u root -p -BNe \"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%v'\""
-const mysqlCommand = "mysql -u root -p"
-const createDatabaseCommand = "CREATE DATABASE %v;\n"
+const CheckDatabaseExistsCommand = "mysql -u root -p -BNe \"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%v'\""
+const MysqlCommand = "mysql -u root -p"
+const CreateDatabaseCommand = "CREATE DATABASE %v;\n"

@@ -1,8 +1,10 @@
-package tasks
+package tasks_test
 
 import (
-	"github.com/neofight/govps/mock"
 	"testing"
+
+	"github.com/neofight/govps/tasks"
+	"github.com/neofight/govps/mock"
 )
 
 const emptyMonoSiteConfiguration = "<apps></apps>"
@@ -22,11 +24,11 @@ func TestConfigureMonoSiteNoConfiguration(t *testing.T) {
 
 	server := mock.NewServer()
 
-	server.Files[monoSiteConfigurationPath] = emptyMonoSiteConfiguration
+	server.Files[tasks.MonoSiteConfigurationPath] = emptyMonoSiteConfiguration
 
-	cxt := Context{server, "test.com"}
+	cxt := tasks.Context{server, "test.com"}
 
-	var task ConfigureMonoSite
+	var task tasks.ConfigureMonoSite
 
 	err := task.Execute(cxt)
 
@@ -38,8 +40,8 @@ func TestConfigureMonoSiteNoConfiguration(t *testing.T) {
 		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testMonoSiteConfiguration, server.UploadedData)
 	}
 
-	if server.UploadedPath != monoSiteConfigurationPath {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", monoSiteConfigurationPath, server.UploadedPath)
+	if server.UploadedPath != tasks.MonoSiteConfigurationPath {
+		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.MonoSiteConfigurationPath, server.UploadedPath)
 	}
 }
 
@@ -47,11 +49,11 @@ func TestConfigureMonoSiteExistingConfiguration(t *testing.T) {
 
 	server := mock.NewServer()
 
-	server.Files[monoSiteConfigurationPath] = testMonoSiteConfiguration
+	server.Files[tasks.MonoSiteConfigurationPath] = testMonoSiteConfiguration
 
-	cxt := Context{server, "test.com"}
+	cxt := tasks.Context{server, "test.com"}
 
-	var task ConfigureMonoSite
+	var task tasks.ConfigureMonoSite
 
 	err := task.Execute(cxt)
 

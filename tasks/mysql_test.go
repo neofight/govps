@@ -1,4 +1,4 @@
-package tasks
+package tasks_test
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/neofight/govps/io"
 	"github.com/neofight/govps/mock"
+	"github.com/neofight/govps/tasks"
 )
 
 const webConfigContents = `<?xml version="1.0"?>
@@ -19,7 +20,7 @@ func sqlWasRun(server *mock.Server, sql string) bool {
 
 	for _, command := range server.CommandsRun {
 
-		if command.Command != mysqlCommand {
+		if command.Command != tasks.MysqlCommand {
 			continue
 		}
 
@@ -41,9 +42,9 @@ func TestCreateMySQLDatabaseNoDatabase(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := Context{server, "test.com"}
+	cxt := tasks.Context{server, "test.com"}
 
-	mysql := CreateMySQLDatabase{[]byte("password")}
+	mysql := tasks.CreateMySQLDatabase{[]byte("password")}
 
 	err := mysql.Execute(cxt)
 
@@ -51,7 +52,7 @@ func TestCreateMySQLDatabaseNoDatabase(t *testing.T) {
 		t.Error("Expected task to run without error but it did not")
 	}
 
-	if !sqlWasRun(server, fmt.Sprintf(createDatabaseCommand, "TestDB")) {
+	if !sqlWasRun(server, fmt.Sprintf(tasks.CreateDatabaseCommand, "TestDB")) {
 		t.Error("Expected database to be created but it was not")
 	}
 }
@@ -66,11 +67,11 @@ func TestCreateMySQLDatabaseExistingDatabase(t *testing.T) {
 
 	server := mock.NewServer()
 
-	server.Responses[fmt.Sprintf(checkDatabaseExistsCommand, "TestDB")] = "TestDB"
+	server.Responses[fmt.Sprintf(tasks.CheckDatabaseExistsCommand, "TestDB")] = "TestDB"
 
-	cxt := Context{server, "test.com"}
+	cxt := tasks.Context{server, "test.com"}
 
-	mysql := CreateMySQLDatabase{[]byte("password")}
+	mysql := tasks.CreateMySQLDatabase{[]byte("password")}
 
 	err := mysql.Execute(cxt)
 
@@ -78,7 +79,7 @@ func TestCreateMySQLDatabaseExistingDatabase(t *testing.T) {
 		t.Error("Expected task to run without error but it did not")
 	}
 
-	if sqlWasRun(server, fmt.Sprintf(createDatabaseCommand, "TestDB")) {
+	if sqlWasRun(server, fmt.Sprintf(tasks.CreateDatabaseCommand, "TestDB")) {
 		t.Error("Expected database not to be created but it was")
 	}
 }

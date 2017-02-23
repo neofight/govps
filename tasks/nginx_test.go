@@ -1,4 +1,4 @@
-package tasks
+package tasks_test
 
 import (
 	"strings"
@@ -6,6 +6,7 @@ import (
 
 	"fmt"
 	"github.com/neofight/govps/mock"
+	"github.com/neofight/govps/tasks"
 )
 
 const fastcgiParamsFile = `fastcgi_param  QUERY_STRING       $query_string;
@@ -37,11 +38,11 @@ func TestAddNginxFastCGIParameters(t *testing.T) {
 
 	server := mock.NewServer()
 
-	server.Files[fastcgiParamsPath] = fastcgiParamsFile
+	server.Files[tasks.FastcgiParamsPath] = fastcgiParamsFile
 
-	cxt := Context{server, "test.com"}
+	cxt := tasks.Context{server, "test.com"}
 
-	var task = AddNginxFastCGIParameters{}
+	var task = tasks.AddNginxFastCGIParameters{}
 
 	err := task.Execute(cxt)
 
@@ -49,15 +50,15 @@ func TestAddNginxFastCGIParameters(t *testing.T) {
 		t.Error("Expected Fast CGI Parameters to be added without error but they were not")
 	}
 
-	if server.UploadedPath != fastcgiParamsPath {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", fastcgiParamsPath, server.UploadedPath)
+	if server.UploadedPath != tasks.FastcgiParamsPath {
+		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.FastcgiParamsPath, server.UploadedPath)
 	}
 
-	if c := strings.Count(server.UploadedData, pathInfoParameter); c != 1 {
+	if c := strings.Count(server.UploadedData, tasks.PathInfoParameter); c != 1 {
 		t.Errorf("Expected the uploaded configuration file to include the PATH INFO setting once but was found %v times", c)
 	}
 
-	if c := strings.Count(server.UploadedData, scriptFilenameParameter); c != 1 {
+	if c := strings.Count(server.UploadedData, tasks.ScriptFilenameParameter); c != 1 {
 		t.Errorf("Expected the uploaded configuration file to include the SCRIPT FILENAME setting once but was found %v times", c)
 	}
 }
@@ -66,11 +67,11 @@ func TestExistingNginxFastCGIParameters(t *testing.T) {
 
 	server := mock.NewServer()
 
-	server.Files[fastcgiParamsPath] = fastcgiParamsFile + pathInfoParameter + scriptFilenameParameter
+	server.Files[tasks.FastcgiParamsPath] = fastcgiParamsFile + tasks.PathInfoParameter + tasks.ScriptFilenameParameter
 
-	cxt := Context{server, "test.com"}
+	cxt := tasks.Context{server, "test.com"}
 
-	var task = AddNginxFastCGIParameters{}
+	var task = tasks.AddNginxFastCGIParameters{}
 
 	err := task.Execute(cxt)
 
@@ -101,9 +102,9 @@ func TestUploadMvcNginxConfig(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := Context{server, "test.com"}
+	cxt := tasks.Context{server, "test.com"}
 
-	var task = UploadMvcNginxConfig{}
+	var task = tasks.UploadMvcNginxConfig{}
 
 	err := task.Execute(cxt)
 
@@ -111,8 +112,8 @@ func TestUploadMvcNginxConfig(t *testing.T) {
 		t.Error("Expected MVC Nginx Config to uploaded without error but it was not")
 	}
 
-	if server.UploadedPath != sitesAvailablePath+"test.com" {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", sitesAvailablePath, server.UploadedPath)
+	if server.UploadedPath != tasks.SitesAvailablePath+"test.com" {
+		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.SitesAvailablePath, server.UploadedPath)
 	}
 
 	if server.UploadedData != testMvcNginxConfiguration {
@@ -136,9 +137,9 @@ func TestUploadStaticNginxConfig(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := Context{server, "test.com"}
+	cxt := tasks.Context{server, "test.com"}
 
-	var task = UploadStaticNginxConfig{}
+	var task = tasks.UploadStaticNginxConfig{}
 
 	err := task.Execute(cxt)
 
@@ -146,8 +147,8 @@ func TestUploadStaticNginxConfig(t *testing.T) {
 		t.Error("Expected Static Nginx Config to uploaded without error but it was not")
 	}
 
-	if server.UploadedPath != sitesAvailablePath+"test.com" {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", sitesAvailablePath, server.UploadedPath)
+	if server.UploadedPath != tasks.SitesAvailablePath+"test.com" {
+		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.SitesAvailablePath, server.UploadedPath)
 	}
 
 	if server.UploadedData != testStaticNginxConfiguration {
@@ -171,9 +172,9 @@ func TestEnableNginxSite(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := Context{server, "test.com"}
+	cxt := tasks.Context{server, "test.com"}
 
-	var task = EnableNginxSite{}
+	var task = tasks.EnableNginxSite{}
 
 	err := task.Execute(cxt)
 
@@ -181,13 +182,13 @@ func TestEnableNginxSite(t *testing.T) {
 		t.Error("Expected Nginx site to be enabled without error but it was not")
 	}
 
-	enablePosition, ok := positionOfCommand(server, fmt.Sprintf(enableSiteCommand, "test.com", "test.com"))
+	enablePosition, ok := positionOfCommand(server, fmt.Sprintf(tasks.EnableSiteCommand, "test.com", "test.com"))
 
 	if !ok {
 		t.Error("Expected site to be enabled but it was not")
 	}
 
-	reloadPosition, ok := positionOfCommand(server, reloadConfigCommand)
+	reloadPosition, ok := positionOfCommand(server, tasks.ReloadConfigCommand)
 
 	if !ok {
 		t.Error("Expected Nginx configuration to be reloaded but it was not")

@@ -8,18 +8,18 @@ import (
 	"github.com/neofight/govps/io"
 )
 
-const usage string = "Usage: govps <host> <domain>"
+const Usage string = "Usage: govps <host> <domain>"
 
-type arguments struct {
-	host   string
-	domain string
+type Arguments struct {
+	Host   string
+	Domain string
 }
 
-func parse(args []string) (parsed arguments, ok bool) {
+func Parse(args []string) (parsed Arguments, ok bool) {
 
 	if len(args) != 3 {
 		printUsage()
-		return arguments{}, false
+		return Arguments{}, false
 	}
 
 	host := strings.TrimSpace(args[1])
@@ -27,12 +27,12 @@ func parse(args []string) (parsed arguments, ok bool) {
 
 	if !isArgumentValid(host) || !isArgumentValid(domain) {
 		printUsage()
-		return arguments{}, false
+		return Arguments{}, false
 	}
 
-	return arguments{
-		host:   host,
-		domain: domain,
+	return Arguments{
+		Host:   host,
+		Domain: domain,
 	}, true
 }
 
@@ -44,5 +44,5 @@ func isArgumentValid(argument string) bool {
 }
 
 func printUsage() {
-	fmt.Fprintln(io.StdOut, usage)
+	fmt.Fprintln(io.StdOut, Usage)
 }

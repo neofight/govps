@@ -1,27 +1,17 @@
-package tasks
+package tasks_test
 
 import (
 	"testing"
 
 	"github.com/neofight/govps/mock"
+	"github.com/neofight/govps/tasks"
 )
 
-func contains(a []string, v string) bool {
+func executeInstallMonoFastCGIService(server tasks.Server) error {
 
-	for _, av := range a {
-		if av == v {
-			return true
-		}
-	}
+	cxt := tasks.Context{server, "test.com"}
 
-	return false
-}
-
-func executeInstallMonoFastCGIService(server Server) error {
-
-	cxt := Context{server, "test.com"}
-
-	var task InstallMono
+	var task tasks.InstallMono
 
 	return task.Execute(cxt)
 }
@@ -36,12 +26,12 @@ func TestInstallMonoFastCGIServiceUnitFile(t *testing.T) {
 		t.Error("Expected unit file to be uploaded without error but it was not")
 	}
 
-	if server.UploadedData != monoUnitFile {
-		t.Errorf("Expected the uploaded unit file to be as follows:\n%v\nBut was:\n%v", monoUnitFile, server.UploadedData)
+	if server.UploadedData != tasks.MonoUnitFile {
+		t.Errorf("Expected the uploaded unit file to be as follows:\n%v\nBut was:\n%v", tasks.MonoUnitFile, server.UploadedData)
 	}
 
-	if server.UploadedPath != monoUnitFilePath {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", monoUnitFilePath, server.UploadedPath)
+	if server.UploadedPath != tasks.MonoUnitFilePath {
+		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.MonoUnitFilePath, server.UploadedPath)
 	}
 }
 
@@ -55,7 +45,7 @@ func TestInstallMonoFastCGIServiceEnableService(t *testing.T) {
 		t.Error("Expected service to be enabled without error but it was not")
 	}
 
-	if !contains(server.SudoCommandsRun, enableMonoServiceCommand) {
+	if !contains(server.SudoCommandsRun, tasks.EnableMonoServiceCommand) {
 		t.Error("Expected service to be enabled but it was not")
 	}
 }
@@ -70,7 +60,7 @@ func TestInstallMonoFastCGIServiceStartService(t *testing.T) {
 		t.Error("Expected service to be enabled without error but it was not")
 	}
 
-	if !contains(server.SudoCommandsRun, startMonoServiceCommand) {
+	if !contains(server.SudoCommandsRun, tasks.StartMonoServiceCommand) {
 		t.Error("Expected service to be started but it was not")
 	}
 }

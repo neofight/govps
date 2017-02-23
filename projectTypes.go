@@ -17,7 +17,7 @@ const (
 	Static
 )
 
-func identifyProjectType() (projectType, error) {
+func IdentifyProjectType() (projectType, error) {
 
 	files, err := io.FileSystem.ReadDir(".")
 
@@ -38,7 +38,7 @@ func identifyProjectType() (projectType, error) {
 	return Unknown, errors.New("Failed to identify project type")
 }
 
-func createPipeline(pType projectType) ([]tasks.Task, error) {
+func CreatePipeline(pType projectType) ([]tasks.Task, error) {
 	switch pType {
 	case Mvc:
 		mySQLPassword, err := promptForPassword("MySql")

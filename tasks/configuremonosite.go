@@ -10,7 +10,7 @@ type ConfigureMonoSite struct {
 
 func (task ConfigureMonoSite) Execute(cxt Context) error {
 
-	file, err := cxt.VPS.DownloadFile(monoSiteConfigurationPath)
+	file, err := cxt.VPS.DownloadFile(MonoSiteConfigurationPath)
 
 	if err != nil {
 		return fmt.Errorf("Failed to download Mono FastCGI configuration: %v", err)
@@ -63,4 +63,4 @@ type webApplication struct {
 	Enabled bool   `xml:"enabled"`
 }
 
-const monoSiteConfigurationPath = "/etc/xsp4/debian.webapp"
+const MonoSiteConfigurationPath = "/etc/xsp4/debian.webapp"

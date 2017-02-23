@@ -10,13 +10,13 @@ import (
 
 func main() {
 
-	args, ok := parse(os.Args)
+	args, ok := Parse(os.Args)
 
 	if !ok {
 		return;
 	}
 
-	pType, err := identifyProjectType()
+	pType, err := IdentifyProjectType()
 
 	if err != nil {
 		log.Fatal("Failed to identify a supported project type for deployment: ", err)
@@ -28,13 +28,13 @@ func main() {
 		log.Fatal("Unable to read password: ", err)
 	}
 
-	pipeline, err := createPipeline(pType)
+	pipeline, err := CreatePipeline(pType)
 
 	if err != nil {
 		log.Fatal("Failed to create tasks for deployment: ", err)
 	}
 
-	client, err := ssh.CreateSSHClient(args.host, password)
+	client, err := ssh.CreateSSHClient(args.Host, password)
 
 	if err != nil {
 		log.Fatal("Error creating SSH client: ", err)
@@ -44,7 +44,7 @@ func main() {
 
 	vps := Server{client: client, password: password}
 
-	err = tasks.ExecutePipeline(tasks.Context{VPS: vps, Domain: args.domain}, pipeline)
+	err = tasks.ExecutePipeline(tasks.Context{VPS: vps, Domain: args.Domain}, pipeline)
 
 	if err != nil {
 		log.Fatal("Error executing deployment process: ", err)
