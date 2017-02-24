@@ -36,12 +36,15 @@ func TestConfigureMonoSiteNoConfiguration(t *testing.T) {
 		t.Error("Expected configuration file to be uploaded without error but it was not")
 	}
 
-	if server.UploadedData != testMonoSiteConfiguration {
-		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testMonoSiteConfiguration, server.UploadedData)
+	uploadedData, ok := server.UploadedFiles[tasks.MonoSiteConfigurationPath]
+
+	if !ok {
+		t.Errorf("Expected the configuration to be uploaded to:\n%v", tasks.MonoSiteConfigurationPath)
+		return
 	}
 
-	if server.UploadedPath != tasks.MonoSiteConfigurationPath {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.MonoSiteConfigurationPath, server.UploadedPath)
+	if uploadedData != testMonoSiteConfiguration {
+		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testMonoSiteConfiguration, uploadedData)
 	}
 }
 
@@ -61,7 +64,9 @@ func TestConfigureMonoSiteExistingConfiguration(t *testing.T) {
 		t.Error("Expected the task to complete without error but it did not")
 	}
 
-	if server.UploadedPath != "" || server.UploadedData != "" {
+	_, ok := server.UploadedFiles[tasks.MonoSiteConfigurationPath]
+
+	if ok {
 		t.Error("Expected the configuration file not to be uploaded but it was")
 	}
 }

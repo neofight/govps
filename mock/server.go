@@ -2,7 +2,6 @@ package mock
 
 import (
 	"errors"
-	"fmt"
 	"os"
 )
 
@@ -14,8 +13,7 @@ type Command struct {
 type Server struct {
 	Files map[string]string
 
-	UploadedData string
-	UploadedPath string
+	UploadedFiles map[string]string
 
 	CommandsRun     []Command
 	SudoCommandsRun []string
@@ -25,8 +23,9 @@ type Server struct {
 
 func NewServer() *Server {
 	return &Server{
-		Files:     make(map[string]string),
-		Responses: make(map[string]string),
+		Files:         make(map[string]string),
+		UploadedFiles: make(map[string]string),
+		Responses:     make(map[string]string),
 	}
 }
 
@@ -63,10 +62,7 @@ func (s *Server) UploadFiles(localPath string, remotePath string, filter func(pa
 
 func (s *Server) UploadData(data string, filePath string) error {
 
-	fmt.Println(s.UploadedPath)
-
-	s.UploadedData = data
-	s.UploadedPath = filePath
+	s.UploadedFiles[filePath] = data
 
 	return nil
 }

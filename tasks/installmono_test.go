@@ -26,12 +26,15 @@ func TestInstallMonoFastCGIServiceUnitFile(t *testing.T) {
 		t.Error("Expected unit file to be uploaded without error but it was not")
 	}
 
-	if server.UploadedData != tasks.MonoUnitFile {
-		t.Errorf("Expected the uploaded unit file to be as follows:\n%v\nBut was:\n%v", tasks.MonoUnitFile, server.UploadedData)
+	uploadedData, ok := server.UploadedFiles[tasks.MonoUnitFilePath]
+
+	if !ok {
+		t.Errorf("Expected the unit file to be uploaded to:\n%v", tasks.MonoUnitFilePath)
+		return
 	}
 
-	if server.UploadedPath != tasks.MonoUnitFilePath {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.MonoUnitFilePath, server.UploadedPath)
+	if uploadedData != tasks.MonoUnitFile {
+		t.Errorf("Expected the uploaded unit file to be as follows:\n%v\nBut was:\n%v", tasks.MonoUnitFile, uploadedData)
 	}
 }
 

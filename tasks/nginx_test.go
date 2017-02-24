@@ -50,15 +50,18 @@ func TestAddNginxFastCGIParameters(t *testing.T) {
 		t.Error("Expected Fast CGI Parameters to be added without error but they were not")
 	}
 
-	if server.UploadedPath != tasks.FastcgiParamsPath {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.FastcgiParamsPath, server.UploadedPath)
+	uploadedData, ok := server.UploadedFiles[tasks.FastcgiParamsPath]
+
+	if !ok {
+		t.Errorf("Expected the configuration to be uploaded to:\n%v", tasks.FastcgiParamsPath)
+		return
 	}
 
-	if c := strings.Count(server.UploadedData, tasks.PathInfoParameter); c != 1 {
+	if c := strings.Count(uploadedData, tasks.PathInfoParameter); c != 1 {
 		t.Errorf("Expected the uploaded configuration file to include the PATH INFO setting once but was found %v times", c)
 	}
 
-	if c := strings.Count(server.UploadedData, tasks.ScriptFilenameParameter); c != 1 {
+	if c := strings.Count(uploadedData, tasks.ScriptFilenameParameter); c != 1 {
 		t.Errorf("Expected the uploaded configuration file to include the SCRIPT FILENAME setting once but was found %v times", c)
 	}
 }
@@ -79,7 +82,9 @@ func TestExistingNginxFastCGIParameters(t *testing.T) {
 		t.Error("Expected Fast CGI Parameters to be added without error but they were not")
 	}
 
-	if server.UploadedPath != "" || server.UploadedData != "" {
+	_, ok := server.UploadedFiles[tasks.FastcgiParamsPath]
+
+	if ok {
 		t.Error("Expected the configuration file not to be uploaded but it was")
 	}
 }
@@ -112,12 +117,14 @@ func TestUploadMvcNginxConfig(t *testing.T) {
 		t.Error("Expected MVC Nginx Config to uploaded without error but it was not")
 	}
 
-	if server.UploadedPath != tasks.SitesAvailablePath+"test.com" {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.SitesAvailablePath, server.UploadedPath)
+	uploadedData, ok := server.UploadedFiles[tasks.SitesAvailablePath+"test.com"]
+
+	if !ok {
+		t.Errorf("Expected the configuration to be uploaded to:\n%v", tasks.SitesAvailablePath+"test.com")
 	}
 
-	if server.UploadedData != testMvcNginxConfiguration {
-		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testMvcNginxConfiguration, server.UploadedData)
+	if uploadedData != testMvcNginxConfiguration {
+		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testMvcNginxConfiguration, uploadedData)
 	}
 }
 
@@ -147,12 +154,14 @@ func TestUploadStaticNginxConfig(t *testing.T) {
 		t.Error("Expected Static Nginx Config to uploaded without error but it was not")
 	}
 
-	if server.UploadedPath != tasks.SitesAvailablePath+"test.com" {
-		t.Errorf("Expected the remote path to be as follows:\n%v\nBut was:\n%v", tasks.SitesAvailablePath, server.UploadedPath)
+	uploadedData, ok := server.UploadedFiles[tasks.SitesAvailablePath+"test.com"]
+
+	if !ok {
+		t.Errorf("Expected the configuration to be uploaded to:\n%v", tasks.SitesAvailablePath+"test.com")
 	}
 
-	if server.UploadedData != testStaticNginxConfiguration {
-		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testStaticNginxConfiguration, server.UploadedData)
+	if uploadedData != testStaticNginxConfiguration {
+		t.Errorf("Expected the uploaded configuration file to be as follows:\n%v\nBut was:\n%v", testStaticNginxConfiguration, uploadedData)
 	}
 }
 
