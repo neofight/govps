@@ -80,7 +80,7 @@ func TestExistingNginxFastCGIParameters(t *testing.T) {
 	}
 
 	if server.UploadedPath != "" || server.UploadedData != "" {
-		t.Errorf("Expected the configuration file not to be uploaded but it was")
+		t.Error("Expected the configuration file not to be uploaded but it was")
 	}
 }
 

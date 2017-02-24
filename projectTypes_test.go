@@ -94,7 +94,7 @@ func TestCreatePipelineMvcErrorReadingPassword(t *testing.T) {
 
 func TestCreatePipelineMvcHappyPath(t *testing.T) {
 
-	io.Terminal = mock.Terminal{"password"}
+	io.Terminal = mock.Terminal{Password: "password"}
 
 	pipeline, err := main.CreatePipeline(main.Mvc)
 
