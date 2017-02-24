@@ -9,7 +9,7 @@ import (
 
 func executeInstallMonoFastCGIService(server tasks.Server) error {
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	var task tasks.InstallMono
 

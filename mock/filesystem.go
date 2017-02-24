@@ -2,10 +2,10 @@ package mock
 
 import (
 	"errors"
-	"os"
-	"time"
 	stdio "io"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/neofight/govps/io"
 )
@@ -20,10 +20,10 @@ func (mock File) Read(p []byte) (n int, err error) {
 
 type FileSystem struct {
 	DirectoryEntries []os.FileInfo
-	Files map[string]string
+	Files            map[string]string
 }
 
-func NewFileSystem() *FileSystem{
+func NewFileSystem() *FileSystem {
 	return &FileSystem{Files: make(map[string]string)}
 }
 
@@ -34,7 +34,7 @@ func (mock FileSystem) Open(name string) (io.File, error) {
 	if !ok {
 		return File{}, errors.New("Error reading file")
 	}
-	
+
 	return File{strings.NewReader(contents)}, nil
 }
 

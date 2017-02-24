@@ -42,9 +42,9 @@ func TestCreateMySQLDatabaseNoDatabase(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
-	mysql := tasks.CreateMySQLDatabase{[]byte("password")}
+	mysql := tasks.CreateMySQLDatabase{MySQLPassword: []byte("password")}
 
 	err := mysql.Execute(cxt)
 
@@ -69,9 +69,9 @@ func TestCreateMySQLDatabaseExistingDatabase(t *testing.T) {
 
 	server.Responses[fmt.Sprintf(tasks.CheckDatabaseExistsCommand, "TestDB")] = "TestDB"
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
-	mysql := tasks.CreateMySQLDatabase{[]byte("password")}
+	mysql := tasks.CreateMySQLDatabase{MySQLPassword: []byte("password")}
 
 	err := mysql.Execute(cxt)
 

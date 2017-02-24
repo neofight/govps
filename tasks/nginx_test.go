@@ -40,7 +40,7 @@ func TestAddNginxFastCGIParameters(t *testing.T) {
 
 	server.Files[tasks.FastcgiParamsPath] = fastcgiParamsFile
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	var task = tasks.AddNginxFastCGIParameters{}
 
@@ -69,7 +69,7 @@ func TestExistingNginxFastCGIParameters(t *testing.T) {
 
 	server.Files[tasks.FastcgiParamsPath] = fastcgiParamsFile + tasks.PathInfoParameter + tasks.ScriptFilenameParameter
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	var task = tasks.AddNginxFastCGIParameters{}
 
@@ -102,7 +102,7 @@ func TestUploadMvcNginxConfig(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	var task = tasks.UploadMvcNginxConfig{}
 
@@ -137,7 +137,7 @@ func TestUploadStaticNginxConfig(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	var task = tasks.UploadStaticNginxConfig{}
 
@@ -172,7 +172,7 @@ func TestEnableNginxSite(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	var task = tasks.EnableNginxSite{}
 

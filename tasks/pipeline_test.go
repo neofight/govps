@@ -12,7 +12,7 @@ func TestPipelineSuccess(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	mockTasks := make([]tasks.Task, 10)
 
@@ -33,7 +33,7 @@ func TestPipelineFailure(t *testing.T) {
 
 	server := mock.NewServer()
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	mockTasks := make([]tasks.Task, 10)
 

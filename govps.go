@@ -13,7 +13,7 @@ func main() {
 	args, ok := Parse(os.Args)
 
 	if !ok {
-		return;
+		return
 	}
 
 	pType, err := IdentifyProjectType()

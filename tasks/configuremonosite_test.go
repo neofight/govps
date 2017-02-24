@@ -3,8 +3,8 @@ package tasks_test
 import (
 	"testing"
 
-	"github.com/neofight/govps/tasks"
 	"github.com/neofight/govps/mock"
+	"github.com/neofight/govps/tasks"
 )
 
 const emptyMonoSiteConfiguration = "<apps></apps>"
@@ -26,7 +26,7 @@ func TestConfigureMonoSiteNoConfiguration(t *testing.T) {
 
 	server.Files[tasks.MonoSiteConfigurationPath] = emptyMonoSiteConfiguration
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	var task tasks.ConfigureMonoSite
 
@@ -51,7 +51,7 @@ func TestConfigureMonoSiteExistingConfiguration(t *testing.T) {
 
 	server.Files[tasks.MonoSiteConfigurationPath] = testMonoSiteConfiguration
 
-	cxt := tasks.Context{server, "test.com"}
+	cxt := tasks.Context{VPS: server, Domain: "test.com"}
 
 	var task tasks.ConfigureMonoSite
 
