@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/neofight/govps/stack"
+	"github.com/neofight/gostack"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -178,7 +178,7 @@ func ScpUpload(client *ssh.Client, localPath string, remotePath string, password
 
 	inputs := make([]string, 0)
 
-	var dirs stack.Stack
+	var dirs gostack.Stack
 
 	filepath.Walk(localPath, func(path string, info os.FileInfo, _ error) error {
 
@@ -191,9 +191,13 @@ func ScpUpload(client *ssh.Client, localPath string, remotePath string, password
 			return nil
 		}
 
-		for dirs.Count() > 0 && !strings.HasPrefix(path, dirs.Peep()) {
+		dir, _ := dirs.Peep()
+
+		for dirs.Count() > 0 && !strings.HasPrefix(path, dir.(string)) {
 			dirs.Pop()
 			inputs = append(inputs, "E\n")
+
+			dir, _ = dirs.Peep()
 		}
 
 		if info.IsDir() {
